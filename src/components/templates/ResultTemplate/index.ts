@@ -1,1 +1,0 @@
-export { ResultTemplate } from './ResultTemplate'

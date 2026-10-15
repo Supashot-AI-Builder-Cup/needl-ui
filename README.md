@@ -44,19 +44,20 @@ src/
 
 ## Aturan UI vs logic
 
-Tiap folder komponen berisi:
+Nama komponen = nama folder. Tiap folder komponen (termasuk `pages/`) berisi:
 
 | File | Isi |
 |---|---|
-| `X.tsx` | UI saja: terima props, render JSX. Boleh pakai `usePreferences()` untuk teks. |
-| `useX.ts` | logic komponen: state, effect, timer, animasi, event handler. |
-| `X.css` | style komponen (nama class sama dengan prototipe `needl.html`). |
-| `index.ts` | export publik. |
+| `index.tsx` | UI saja: terima props, render JSX. Boleh pakai `usePreferences()` untuk teks. |
+| `index.css` | style komponen (nama class sama dengan prototipe `needl.html`). Tidak ada kalau komponen tidak punya style sendiri. |
+| `useNamaHook.ts` | logic komponen: state, effect, timer, animasi, event handler. Nama file = nama hook, misalnya `useGaugeAnimation.ts`. |
+
+Import cukup sampai folder: `import { Gauge } from '../../molecules/Gauge'`.
 
 Kalau ada bug:
 
-- tampilan salah: buka `X.tsx` / `X.css`;
-- perilaku salah (timer, animasi, klik): buka `useX.ts`;
+- tampilan salah: buka `index.tsx` / `index.css` di folder komponennya;
+- perilaku salah (timer, animasi, klik): buka file `use*.ts` di folder yang sama;
 - hasil hitungan / validasi salah: buka `src/lib`;
 - data salah: buka `src/data` atau `src/services`.
 

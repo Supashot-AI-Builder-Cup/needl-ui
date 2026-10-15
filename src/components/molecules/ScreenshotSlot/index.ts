@@ -1,1 +1,0 @@
-export { ScreenshotSlot } from './ScreenshotSlot'

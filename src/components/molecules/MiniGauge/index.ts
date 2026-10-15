@@ -1,1 +1,0 @@
-export { MiniGauge } from './MiniGauge'

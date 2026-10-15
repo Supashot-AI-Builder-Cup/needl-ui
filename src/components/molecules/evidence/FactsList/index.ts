@@ -1,1 +1,0 @@
-export { FactsList } from './FactsList'

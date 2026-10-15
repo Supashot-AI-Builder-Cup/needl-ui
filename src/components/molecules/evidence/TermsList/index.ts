@@ -1,1 +1,0 @@
-export { TermsList } from './TermsList'

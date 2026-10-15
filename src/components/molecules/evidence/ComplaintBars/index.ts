@@ -1,1 +1,0 @@
-export { ComplaintBars } from './ComplaintBars'

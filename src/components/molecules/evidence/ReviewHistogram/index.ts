@@ -1,1 +1,0 @@
-export { ReviewHistogram } from './ReviewHistogram'
