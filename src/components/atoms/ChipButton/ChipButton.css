@@ -1,0 +1,32 @@
+.sharebtn {
+  padding: 8px 14px 8px 12px;
+}
+.sharebtn:hover svg {
+  transform: translateY(-2px);
+}
+.backbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: var(--mint);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  margin: 8px 0 18px;
+  transition: background 0.15s;
+}
+.backbtn:hover {
+  background: var(--mint-2);
+}
+.backbtn svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.15s;
+}
+.backbtn:hover svg {
+  transform: translateX(-2px);
+}

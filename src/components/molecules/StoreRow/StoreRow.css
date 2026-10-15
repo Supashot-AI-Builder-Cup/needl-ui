@@ -1,0 +1,79 @@
+.store {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 4px 14px;
+  align-items: start;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+.store .sbtn {
+  flex: none;
+  align-self: start;
+}
+.store .sn {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.store .sd {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.store .sp {
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+.store .sinfo {
+  min-width: 0;
+}
+.store.official {
+  background: var(--pass-bg);
+  margin: 0 -14px;
+  padding: 16px 14px;
+  border-radius: 14px;
+  border-top: 0;
+}
+.store.official + .store {
+  border-top: 0;
+}
+.store.official .tagline {
+  background: var(--tp);
+  color: var(--paper);
+  box-shadow: none;
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    110deg,
+    transparent 32%,
+    color-mix(in srgb, var(--tp) 45%, transparent) 46%,
+    color-mix(in srgb, var(--tp) 70%, transparent) 50%,
+    color-mix(in srgb, var(--tp) 45%, transparent) 54%,
+    transparent 68%
+  );
+  background-size: 250% 100%;
+  animation: shimmer 2.8s ease-in-out infinite;
+}
+.shimmer:hover::after {
+  animation-duration: 1.4s;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 130% 0;
+  }
+  55%,
+  100% {
+    background-position: -30% 0;
+  }
+}

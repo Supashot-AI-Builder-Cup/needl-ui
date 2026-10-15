@@ -1,0 +1,10 @@
+.desc {
+  font-size: 15px;
+  line-height: 1.65;
+}
+.desc mark {
+  background: var(--flag-bg);
+  color: var(--flag);
+  border-radius: 4px;
+  padding: 1px 3px;
+}

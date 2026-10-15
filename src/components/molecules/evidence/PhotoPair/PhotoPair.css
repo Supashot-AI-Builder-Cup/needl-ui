@@ -1,0 +1,25 @@
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pair figure {
+  margin: 0;
+}
+.pair .ptile {
+  border-radius: 12px;
+}
+.pair figcaption {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-top: 6px;
+  text-align: center;
+}
+.diffs {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  font-size: 14.5px;
+}
+.diffs li {
+  margin: 3px 0;
+}

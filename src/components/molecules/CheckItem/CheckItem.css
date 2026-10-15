@@ -1,0 +1,37 @@
+.check {
+  border-top: 1px solid var(--line);
+}
+.chead {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 14px;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 16px 0;
+  cursor: pointer;
+}
+.chead .ct {
+  font-weight: 500;
+  font-size: 16px;
+}
+.chead .cs {
+  grid-column: 1/-1;
+  font-size: 15px;
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+.chead .chev {
+  font-size: 13px;
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  grid-column: 1/-1;
+}
+.cbody {
+  padding: 0 0 20px;
+}
+.cbody[hidden] {
+  display: none;
+}

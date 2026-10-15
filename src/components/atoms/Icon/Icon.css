@@ -1,0 +1,7 @@
+.schev {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--ink-2);
+  transition: transform 0.25s ease;
+}

@@ -1,0 +1,9 @@
+.qs {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  counter-reset: q;
+}
+.qs .q:last-child {
+  border-bottom: 1px solid var(--line);
+}

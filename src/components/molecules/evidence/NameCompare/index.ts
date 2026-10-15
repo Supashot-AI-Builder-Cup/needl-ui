@@ -1,0 +1,1 @@
+export { NameCompare } from './NameCompare'

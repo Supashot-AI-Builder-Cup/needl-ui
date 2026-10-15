@@ -1,0 +1,25 @@
+.rtop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0 18px;
+}
+.rtop .backbtn {
+  margin: 0;
+}
+.result {
+  display: grid;
+  gap: 28px;
+  margin-top: 0;
+}
+@media (min-width: 960px) {
+  .result {
+    grid-template-columns: 360px 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .side {
+    position: sticky;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+  }
+}

@@ -1,0 +1,1 @@
+export { ResultTemplate } from './ResultTemplate'

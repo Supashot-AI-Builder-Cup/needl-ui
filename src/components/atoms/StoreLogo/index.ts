@@ -1,0 +1,1 @@
+export { StoreLogo } from './StoreLogo'

@@ -1,0 +1,28 @@
+.pv-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pv-head h2 {
+  margin: 4px 0;
+}
+.pv-x {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.pv-x:hover {
+  background: var(--mint-2);
+}
+.pv-x svg {
+  width: 18px;
+  height: 18px;
+}

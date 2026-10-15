@@ -1,0 +1,49 @@
+.log li {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  transition: opacity 0.25s;
+}
+.log li.pending {
+  opacity: 0.38;
+}
+.log .mark {
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-2);
+}
+.log li.running .mark {
+  border-color: var(--pine);
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+.log li.done .mark {
+  border: 0;
+  background: currentColor;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.log .res {
+  font-size: 13px;
+  margin-top: 2px;
+  min-height: 1em;
+}
+.sev-critical {
+  color: var(--tc);
+}
+.sev-major {
+  color: var(--tm);
+}
+.sev-minor {
+  color: var(--tn);
+}
+.sev-pass {
+  color: var(--tp);
+}

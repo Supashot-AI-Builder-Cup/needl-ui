@@ -1,0 +1,5 @@
+.error {
+  color: var(--crit);
+  font-size: 14px;
+  margin: 10px 2px 0;
+}

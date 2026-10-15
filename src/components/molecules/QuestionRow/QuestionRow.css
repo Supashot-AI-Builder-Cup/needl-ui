@@ -1,0 +1,23 @@
+.q {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  counter-increment: q;
+}
+.q::before {
+  content: counter(q);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink-2);
+  text-align: center;
+}
+.q .qt {
+  font-size: 15.5px;
+}
+.q button {
+  align-self: center;
+}

@@ -1,0 +1,14 @@
+.ptile {
+  background: var(--mint);
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1/1;
+  position: relative;
+  overflow: hidden;
+}
+.ptile svg.bottle {
+  height: 78%;
+  width: auto;
+  filter: grayscale(1) drop-shadow(0 14px 18px rgba(0, 0, 0, 0.18));
+}
