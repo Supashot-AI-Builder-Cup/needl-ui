@@ -4,7 +4,7 @@ import type { IconName } from '../../components/atoms/Icon'
 import { useCheck } from '../../context/check/useCheck'
 import { usePreferences } from '../../context/preferences/usePreferences'
 import { useClipboard } from '../../hooks/useClipboard'
-import { useVerificationJob } from '../../hooks/useVerificationJob'
+import { useVerification } from '../../hooks/useVerification'
 import type { TextKey } from '../../i18n'
 import { groupChecks } from '../../lib/checks'
 import { countBySeverity, FLAG_SEVERITIES } from '../../lib/severity'
@@ -18,7 +18,7 @@ const SECTION_META: Record<SectionKey, { title: TextKey; icon: IconName }> = {
 }
 
 export function useResultPage() {
-  const { jobId = '' } = useParams()
+  const { verificationId = '' } = useParams()
   const { getResult } = useCheck()
   const { t, pick } = usePreferences()
   const { copy } = useClipboard()
@@ -28,12 +28,12 @@ export function useResultPage() {
   const [openChecks, setOpenChecks] = useState<Record<number, boolean>>({ 0: true })
 
   // Right after a check the result is already in memory; otherwise (history, refresh) ask the API.
-  const cached = getResult(jobId)
-  const { job, error } = useVerificationJob(cached ? null : jobId)
-  const result = cached ?? job?.verification ?? null
+  const cached = getResult(verificationId)
+  const { result: fetched, error } = useVerification(cached ? null : verificationId)
+  const result = cached ?? fetched
   const status: 'loading' | 'ready' | 'missing' = result
     ? 'ready'
-    : error || job?.status === 'failed'
+    : error
       ? 'missing'
       : 'loading'
 

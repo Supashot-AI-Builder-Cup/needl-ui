@@ -20,6 +20,8 @@ export const en = {
   pasteDenied: 'Paste is blocked. Long-press the field, then tap Paste.',
   whatChecks: 'What needl checks',
   history: 'History',
+  historyError: 'Could not load saved checks. Showing locally saved results.',
+  retry: 'Try Again',
   seeDetails: 'See Details',
   copy: 'Copy',
   copied: 'Copied',

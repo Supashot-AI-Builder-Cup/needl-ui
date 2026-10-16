@@ -9,7 +9,7 @@ export type Source = 'link' | 'shots'
 
 /** One finished check in the local history list. */
 export interface HistoryEntry {
-  jobId: string
+  verificationId: string
   name: string
   image?: string | null
   price: string

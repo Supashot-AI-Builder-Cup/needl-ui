@@ -1,4 +1,6 @@
 import { usePreferences } from '../../context/preferences/usePreferences'
+import { Button } from '../../components/atoms/Button'
+import { StatusMessage } from '../../components/molecules/StatusMessage'
 import { Tabs } from '../../components/molecules/Tabs'
 import { ChecksOverview } from '../../components/organisms/ChecksOverview'
 import { Hero } from '../../components/organisms/Hero'
@@ -27,7 +29,20 @@ export function HomePage() {
         <>
           <LinkForm onSubmit={page.submitLink} />
           <ChecksOverview />
-          <HistoryList items={page.historyCards} onOpen={page.openHistory} />
+          {page.historyError && (
+            <StatusMessage text={t('historyError')}>
+              <Button variant="link" onClick={() => void page.refreshHistory().catch(() => {})}>
+                {t('retry')}
+              </Button>
+            </StatusMessage>
+          )}
+          <HistoryList
+            items={page.historyCards}
+            onOpen={page.openHistory}
+            hasMore={page.hasMoreHistory}
+            loadingMore={page.loadingMoreHistory}
+            onLoadMore={() => void page.loadMoreHistory().catch(() => {})}
+          />
         </>
       ) : (
         <ScreenshotUploader onContinue={page.continueShots} />

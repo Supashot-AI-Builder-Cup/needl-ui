@@ -3,7 +3,7 @@
 Frontend needl: cek risiko listing Shopee (nama toko tiruan, ulasan palsu, klaim BPOM/Halal, dll).
 React 19 + TypeScript + Vite, routing pakai `react-router`.
 
-Data cek datang dari **needl-service** lewat `POST /api/v1/verification-jobs` dan `GET /api/v1/verification-jobs/{id}` (lihat `API_Contract.md`). Klien API ada di `src/services/api/`.
+Data cek datang dari **needl-service** lewat `POST /api/v1/verification-jobs` dan `GET /api/v1/verification-jobs/{id}`. Riwayat dibaca lewat `GET /api/v1/verifications`, lalu detail tersimpan lewat `GET /api/v1/verifications/{verification_id}` (lihat `.agents/docs/API_Contract.md`). Klien API ada di `src/services/api/`.
 
 ## Menjalankan
 
@@ -35,8 +35,8 @@ Dengan needl-service mode `stub`, link yang mengandung shop id `218334561` membe
 1. Link atau screenshot dikirim ke `POST /verification-jobs`. Error validasi tampil di bawah form.
 2. Modal "Ini produknya?" terbuka dan mem-polling job (ikut `Retry-After`). Kartu produk muncul saat job membawa `preview`.
 3. Setelah "Lanjutkan Pengecekan", log proses mengikuti `progress` job (lihat `src/data/steps.ts`).
-4. Job selesai: hasil disimpan di memori dan riwayat (localStorage), lalu pindah ke `/result/:jobId`.
-5. Halaman hasil yang dibuka ulang atau di-refresh mengambil hasil lewat `GET /verification-jobs/{id}`.
+4. Job selesai: hasil disimpan di memori dan riwayat lokal, lalu pindah ke `/result/:verificationId`.
+5. Riwayat disegarkan dari `GET /api/v1/verifications`; membuka atau me-refresh hasil mengambil data lewat `GET /api/v1/verifications/{verification_id}`.
 
 Job gagal menampilkan pesan dari `error.code`. Kalau link Shopee tidak bisa diambil, modal menawarkan tab Screenshot.
 
