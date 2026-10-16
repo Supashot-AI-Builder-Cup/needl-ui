@@ -1,0 +1,33 @@
+.field {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 6px 6px 6px 14px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.field:focus-within {
+  border-color: var(--pine);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--pine) 16%, transparent);
+}
+.field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 16px;
+  padding: 10px 0;
+  color: var(--ink);
+}
+.field input::placeholder {
+  color: var(--ink-2);
+  opacity: 0.8;
+}
+.field input:focus {
+  outline: none;
+}

@@ -1,0 +1,15 @@
+.ev {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  overflow-x: auto;
+}
+.ev + .ev {
+  margin-top: 10px;
+}
+.ev-cap {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin: 0 0 8px;
+}

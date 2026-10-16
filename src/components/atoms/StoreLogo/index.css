@@ -1,0 +1,13 @@
+.slogo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  overflow: hidden;
+  align-self: start;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.slogo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

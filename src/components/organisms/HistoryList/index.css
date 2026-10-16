@@ -1,0 +1,30 @@
+.history {
+  margin-top: 40px;
+}
+.history h3 {
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+.hmore {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.hmore svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s;
+}
+.hmore[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+.history ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}

@@ -1,0 +1,22 @@
+.hist {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 90px;
+  margin: 4px 0 6px;
+}
+.hist div {
+  flex: 1;
+  background: var(--mint-2);
+  border-radius: 3px 3px 0 0;
+  min-height: 3px;
+}
+.hist div.hot {
+  background: var(--crit);
+}
+.hist-x {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--ink-2);
+}

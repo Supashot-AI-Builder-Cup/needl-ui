@@ -1,0 +1,45 @@
+.sec {
+  margin-bottom: 34px;
+}
+.sec.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 0 20px;
+  margin-bottom: 14px;
+  transition: border-color 0.15s;
+}
+.sec.card.static {
+  padding: 20px;
+}
+.sec.card.static > h3 {
+  margin-bottom: 6px;
+}
+.sec.card:not(.static):hover {
+  border-color: var(--ink-2);
+}
+.sec.card .check:last-of-type,
+.sec.card .store:last-of-type,
+.sec.card .qs .q:last-child {
+  border-bottom: 0;
+}
+.sec.card .ev {
+  background: var(--paper);
+}
+.sec.card .store.official {
+  margin: 0 -20px;
+  padding: 16px 20px;
+  border-radius: 0;
+  background: var(--tp-bg);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--tp) 22%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--tp) 22%, transparent);
+}
+.sec > h3 {
+  margin-bottom: 6px;
+}
+.sec > .sec-lede {
+  font-size: 14.5px;
+  color: var(--ink-2);
+  margin: 0 0 10px;
+}

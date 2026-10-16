@@ -1,0 +1,20 @@
+.brand {
+  display: inline-flex;
+  align-items: flex-end;
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+.brand svg {
+  width: 9px;
+  height: 27px;
+  margin-left: 2px;
+  margin-bottom: 1px;
+}

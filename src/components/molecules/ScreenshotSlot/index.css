@@ -1,0 +1,98 @@
+.slot {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.slot:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.thumb {
+  width: 52px;
+  height: 72px;
+  border-radius: 9px;
+  background: var(--mint);
+  flex: none;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px dashed var(--mint-2);
+}
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.thumb.filled {
+  border: 1px solid var(--line);
+}
+.slot .txt {
+  flex: 1;
+  min-width: 0;
+}
+.slot strong {
+  font-weight: 500;
+  display: block;
+}
+.slot .hint {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.slot .uses {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin-top: 3px;
+}
+.slot-acts {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: none;
+}
+.slot-del {
+  padding: 8px;
+  display: grid;
+  place-items: center;
+}
+.slot-del svg {
+  width: 16px;
+  height: 16px;
+}
+.slot-del:hover {
+  background: var(--tc-bg);
+  color: var(--tc);
+}
+.req {
+  color: var(--tc);
+  font-weight: 600;
+  margin-left: 3px;
+}
+.slot label.btn {
+  display: inline-block;
+}
+.slot input[type="file"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.slot-name {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-weight: 500;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dashed transparent;
+  padding: 0 0 1px;
+  border-radius: 0;
+}
+.slot-name:hover {
+  border-bottom-color: var(--line);
+}
+.slot-name:focus {
+  outline: none;
+  border-bottom-color: var(--ink-2);
+}

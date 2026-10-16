@@ -1,0 +1,68 @@
+.verdict {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 20px;
+}
+.vprod {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: stretch;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.vprod .ptile {
+  width: 100%;
+  aspect-ratio: 16/11;
+  border-radius: 16px;
+}
+.vprod .ptile svg.bottle {
+  height: 80%;
+}
+.vprod .pn {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.vprod .pp {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-top: 3px;
+}
+.vword {
+  font-family: var(--serif);
+  font-size: 40px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 6px 0 4px;
+}
+.vscore {
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-bottom: 12px;
+}
+.vsum {
+  font-size: 15px;
+  color: var(--ink);
+  margin: 0 0 16px;
+  text-align: center;
+}
+.counts {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+@media (max-width: 520px) {
+  .vword {
+    font-size: 36px;
+  }
+}

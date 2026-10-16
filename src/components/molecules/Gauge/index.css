@@ -1,0 +1,10 @@
+.gauge {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  margin: 18px auto 0;
+}
+.gauge .needle {
+  transform-origin: 100px 104px;
+  transform: rotate(-90deg);
+}
