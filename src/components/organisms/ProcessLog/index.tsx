@@ -1,29 +1,45 @@
 import { usePreferences } from '../../../context/preferences/usePreferences'
-import type { Scenario, Step } from '../../../types/domain'
+import { format } from '../../../i18n'
+import { stepOutcome, type StepOutcome } from '../../../lib/stepOutcome'
+import type { VerificationResult } from '../../../types/api'
+import type { Step } from '../../../types/domain'
 import { ProcessStep } from '../../molecules/ProcessStep'
 import './index.css'
 
 interface ProcessLogProps {
   steps: Step[]
-  scenario: Scenario
-  /** Index of the running step; steps before it are done. */
-  current: number
+  /** Number of steps done; the next one is running. */
+  shown: number
+  /** Known once the job is completed; fills in each step's result. */
+  result: VerificationResult | null
 }
 
-export function ProcessLog({ steps, scenario, current }: ProcessLogProps) {
-  const { pick } = usePreferences()
+export function ProcessLog({ steps, shown, result }: ProcessLogProps) {
+  const { t, pick } = usePreferences()
+
+  const text = (outcome: StepOutcome): string => {
+    if (outcome.kind === 'severity') return t(outcome.severity)
+    if (outcome.kind === 'stores') {
+      return outcome.count ? format(t('storesFound'), { n: outcome.count }) : t('alreadyOfficial')
+    }
+    return format(t('questionsReady'), { n: outcome.count })
+  }
+
   return (
     <ol className="log" aria-live="polite">
-      {steps.map((step, i) => (
-        <ProcessStep
-          key={step.key}
-          index={i}
-          label={pick(step.label)}
-          result={pick(step.result[scenario])}
-          severity={step.severity[scenario]}
-          status={i < current ? 'done' : i === current ? 'running' : 'pending'}
-        />
-      ))}
+      {steps.map((step, i) => {
+        const outcome = i < shown ? stepOutcome(step, result) : null
+        return (
+          <ProcessStep
+            key={step.key}
+            index={i}
+            label={pick(step.label)}
+            result={outcome ? text(outcome) : ''}
+            severity={outcome ? (outcome.kind === 'severity' ? outcome.severity : 'pass') : undefined}
+            status={i < shown ? 'done' : i === shown ? 'running' : 'pending'}
+          />
+        )
+      })}
     </ol>
   )
 }

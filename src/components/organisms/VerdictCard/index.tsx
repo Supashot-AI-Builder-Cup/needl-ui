@@ -1,6 +1,6 @@
 import { usePreferences } from '../../../context/preferences/usePreferences'
 import type { SeverityCounts as Counts } from '../../../lib/severity'
-import type { ProductView } from '../../../services/checkService'
+import type { Product } from '../../../types/domain'
 import { Button } from '../../atoms/Button'
 import { ProductTile } from '../../atoms/ProductTile'
 import { Gauge } from '../../molecules/Gauge'
@@ -9,7 +9,7 @@ import { useVerdictReveal } from './useVerdictReveal'
 import './index.css'
 
 interface VerdictCardProps {
-  productView: ProductView
+  productView: { product: Product; displayName: string }
   counts: Counts
   onCheckAnother: () => void
 }
@@ -23,7 +23,7 @@ export function VerdictCard({ productView, counts, onCheckAnother }: VerdictCard
   return (
     <div className="verdict">
       <div className="vprod">
-        <ProductTile />
+        <ProductTile src={product.image} alt={displayName} />
         <div>
           <div className="pn">{displayName}</div>
           <div className="pp">

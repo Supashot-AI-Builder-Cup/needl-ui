@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import type { IconName } from '../../components/atoms/Icon'
 import { useCheck } from '../../context/check/useCheck'
 import { usePreferences } from '../../context/preferences/usePreferences'
 import { useClipboard } from '../../hooks/useClipboard'
+import { useVerificationJob } from '../../hooks/useVerificationJob'
+import type { TextKey } from '../../i18n'
 import { groupChecks } from '../../lib/checks'
 import { countBySeverity, FLAG_SEVERITIES } from '../../lib/severity'
 import { buildShareText } from '../../lib/shareText'
-import { getCheckResult } from '../../services/checkService'
 import type { SectionKey } from '../../types/domain'
-import type { TextKey } from '../../i18n'
 
 const SECTION_META: Record<SectionKey, { title: TextKey; icon: IconName }> = {
   store: { title: 'secStore', icon: 'store' },
@@ -18,7 +18,8 @@ const SECTION_META: Record<SectionKey, { title: TextKey; icon: IconName }> = {
 }
 
 export function useResultPage() {
-  const { subject } = useCheck()
+  const { jobId = '' } = useParams()
+  const { getResult } = useCheck()
   const { t, pick } = usePreferences()
   const { copy } = useClipboard()
   const navigate = useNavigate()
@@ -26,7 +27,16 @@ export function useResultPage() {
   // The first check's evidence starts open, like the prototype.
   const [openChecks, setOpenChecks] = useState<Record<number, boolean>>({ 0: true })
 
-  const result = subject ? getCheckResult(subject) : null
+  // Right after a check the result is already in memory; otherwise (history, refresh) ask the API.
+  const cached = getResult(jobId)
+  const { job, error } = useVerificationJob(cached ? null : jobId)
+  const result = cached ?? job?.verification ?? null
+  const status: 'loading' | 'ready' | 'missing' = result
+    ? 'ready'
+    : error || job?.status === 'failed'
+      ? 'missing'
+      : 'loading'
+
   const counts = result ? countBySeverity(result.checks) : {}
   const sections = result
     ? groupChecks(result.checks).map((group) => ({
@@ -41,13 +51,13 @@ export function useResultPage() {
   const goHome = () => navigate('/')
 
   const share = async () => {
-    if (!result || !subject) return
+    if (!result) return
     const text = buildShareText({
       name: result.displayName,
       verdict: result.product.verdict === 'high' ? t('high') : t('safe'),
       score: result.product.score,
       counts: FLAG_SEVERITIES.filter((k) => counts[k]).map((k) => `${counts[k]} ${t(k)}`),
-      link: subject.link,
+      link: result.source.url,
     })
     try {
       if (navigator.share) {
@@ -66,6 +76,7 @@ export function useResultPage() {
   }
 
   return {
+    status,
     result,
     counts,
     sections,

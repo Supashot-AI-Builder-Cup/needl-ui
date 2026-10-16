@@ -24,3 +24,8 @@ export function isLang(value: unknown): value is Lang {
 export function pick(text: LocalText, lang: Lang): string {
   return typeof text === 'string' ? text : (text[lang] ?? text.en)
 }
+
+/** Fill `{name}` placeholders: format('{n} found', { n: 3 }). */
+export function format(text: string, values: Record<string, string | number>): string {
+  return text.replace(/\{(\w+)\}/g, (match, key: string) => (key in values ? String(values[key]) : match))
+}

@@ -3,19 +3,38 @@ import { useDraft } from '../../../context/draft/useDraft'
 import { usePreferences } from '../../../context/preferences/usePreferences'
 import { useToast } from '../../../context/toast/useToast'
 import { SCREENSHOT_SLOTS } from '../../../data/screenshotSlots'
+import type { TextKey } from '../../../i18n'
 import { readAsDataUrl } from '../../../lib/file'
+import { ACCEPTED_IMAGE_TYPES, MAX_EXTRA_SHOTS, MAX_IMAGE_BYTES } from '../../../services/api/screenshotForm'
 import type { SlotKey } from '../../../types/domain'
 
-export function useScreenshotUploads() {
+/** `onContinue` sends the screenshots and resolves to an error text, or null when the check started. */
+export function useScreenshotUploads(onContinue: () => Promise<TextKey | null>) {
   const { uploads, setUploads, extras, setExtras } = useDraft()
   const { t } = usePreferences()
   const { showToast } = useToast()
   // Newest extra screenshot, so its name field gets focus.
   const [focusId, setFocusId] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<TextKey | null>(null)
+
+  /** Same limits as the API, checked before the image is kept. */
+  const accept = async (file: File): Promise<string | null> => {
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      showToast(t('errFileType'))
+      return null
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      showToast(t('errFileSize'))
+      return null
+    }
+    setError(null)
+    return readAsDataUrl(file)
+  }
 
   const setSlotFile = async (key: SlotKey, file: File) => {
-    const image = await readAsDataUrl(file)
-    setUploads((u) => ({ ...u, [key]: image }))
+    const image = await accept(file)
+    if (image) setUploads((u) => ({ ...u, [key]: image }))
   }
 
   const clearSlot = (key: SlotKey) => {
@@ -28,15 +47,20 @@ export function useScreenshotUploads() {
   }
 
   const addExtra = async (file: File) => {
-    const image = await readAsDataUrl(file)
+    if (extras.length >= MAX_EXTRA_SHOTS) {
+      showToast(t('errTooManyExtras'))
+      return
+    }
+    const image = await accept(file)
+    if (!image) return
     const id = 'x' + Date.now()
     setExtras((list) => [...list, { id, name: `${t('shotWord')} ${list.length + 1}`, image }])
     setFocusId(id)
   }
 
   const replaceExtra = async (id: string, file: File) => {
-    const image = await readAsDataUrl(file)
-    setExtras((list) => list.map((x) => (x.id === id ? { ...x, image } : x)))
+    const image = await accept(file)
+    if (image) setExtras((list) => list.map((x) => (x.id === id ? { ...x, image } : x)))
   }
 
   const renameExtra = (id: string, name: string) => {
@@ -48,17 +72,28 @@ export function useScreenshotUploads() {
     showToast(t('deleted'))
   }
 
+  const submit = async () => {
+    if (submitting) return
+    setSubmitting(true)
+    setError(await onContinue())
+    setSubmitting(false)
+  }
+
   return {
     slots: SCREENSHOT_SLOTS,
     uploads,
     extras,
     focusId,
-    canContinue: Boolean(uploads.product && uploads.store),
+    canAddExtra: extras.length < MAX_EXTRA_SHOTS,
+    canContinue: Boolean(uploads.product && uploads.store) && !submitting,
+    submitting,
+    error,
     setSlotFile,
     clearSlot,
     addExtra,
     replaceExtra,
     renameExtra,
     removeExtra,
+    submit,
   }
 }

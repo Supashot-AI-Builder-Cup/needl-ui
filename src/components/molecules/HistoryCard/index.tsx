@@ -9,6 +9,7 @@ import './index.css'
 
 export interface HistoryCardData {
   name: string
+  image?: string | null
   price: string
   score: number
   verdict: Verdict
@@ -18,7 +19,7 @@ interface HistoryCardProps extends HistoryCardData {
   onOpen: () => void
 }
 
-export function HistoryCard({ name, price, score, verdict, onOpen }: HistoryCardProps) {
+export function HistoryCard({ name, image, price, score, verdict, onOpen }: HistoryCardProps) {
   const { t } = usePreferences()
   const high = verdict === 'high'
   return (
@@ -35,7 +36,7 @@ export function HistoryCard({ name, price, score, verdict, onOpen }: HistoryCard
         }
       }}
     >
-      <ProductTile className="hthumb" />
+      <ProductTile className="hthumb" src={image} />
       <div className="hinfo">
         <div className="hname">{name}</div>
         <div className="hmeta">

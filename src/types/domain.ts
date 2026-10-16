@@ -1,26 +1,21 @@
 import type { LocalText } from '../i18n'
 
-export type Scenario = 'risky' | 'safe'
 export type Severity = 'critical' | 'major' | 'minor' | 'pass'
 export type Verdict = 'high' | 'safe'
 export type SectionKey = 'store' | 'listing' | 'reviews'
 
-/** Where the current check came from. */
-export type Source = 'link' | 'shots' | 'history'
+/** Where a check was started from. */
+export type Source = 'link' | 'shots'
 
-/** The listing being checked. */
-export interface Subject {
-  scenario: Scenario
-  /** Name taken from the link slug; null means use the mock product name. */
-  name: string | null
-  link: string | null
-  source: Source
-}
-
+/** One finished check in the local history list. */
 export interface HistoryEntry {
-  scenario: Scenario
-  name: string | null
-  link: string | null
+  jobId: string
+  name: string
+  image?: string | null
+  price: string
+  score: number
+  verdict: Verdict
+  checkedAt: string
 }
 
 export interface Product {
@@ -33,6 +28,8 @@ export interface Product {
   store: string
   mall: boolean
   loc: string
+  /** Main product photo URL; null when unknown. */
+  image?: string | null
   score: number
   verdict: Verdict
 }
@@ -99,6 +96,7 @@ export type Evidence =
     }
 
 export interface Check {
+  code: string
   section: SectionKey
   severity: Severity
   name: LocalText
@@ -106,11 +104,13 @@ export interface Check {
   evidence: Evidence[]
 }
 
+/** One line of the checking log. `progress` is the job progress at which it is done. */
 export interface Step {
   key: string
   label: LocalText
-  result: Record<Scenario, LocalText>
-  severity: Record<Scenario, Severity>
+  progress: number
+  /** Check code whose severity shows as the step result, or a special result. */
+  result: { kind: 'check'; code: string } | { kind: 'stores' } | { kind: 'questions' }
 }
 
 export type StoreLogoName = 'dermalune' | 'glowmart' | 'kulitku'

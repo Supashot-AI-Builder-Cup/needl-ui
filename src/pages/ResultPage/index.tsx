@@ -1,8 +1,9 @@
-import { Navigate } from 'react-router'
 import { usePreferences } from '../../context/preferences/usePreferences'
 import { ChipButton } from '../../components/atoms/ChipButton'
 import { Icon } from '../../components/atoms/Icon'
+import { Button } from '../../components/atoms/Button'
 import { Disclaimer } from '../../components/molecules/Disclaimer'
+import { StatusMessage } from '../../components/molecules/StatusMessage'
 import { CheckSection } from '../../components/organisms/CheckSection'
 import { SaferStores } from '../../components/organisms/SaferStores'
 import { SellerQuestions } from '../../components/organisms/SellerQuestions'
@@ -14,8 +15,17 @@ export function ResultPage() {
   const { t } = usePreferences()
   const page = useResultPage()
 
-  // Nothing checked yet (e.g. a refresh on /result): start over.
-  if (!page.result) return <Navigate to="/" replace />
+  if (page.status === 'loading' || !page.result) {
+    return page.status === 'missing' ? (
+      <StatusMessage title={t('resultMissing')} text={t('resultMissingHint')}>
+        <Button variant="primary" block onClick={page.goHome}>
+          {t('another')}
+        </Button>
+      </StatusMessage>
+    ) : (
+      <StatusMessage busy title={t('resultLoading')} />
+    )
+  }
 
   return (
     <ResultTemplate

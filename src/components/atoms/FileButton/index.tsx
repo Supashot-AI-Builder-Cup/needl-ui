@@ -13,7 +13,7 @@ export function FileButton({ className, onFile, children }: FileButtonProps) {
       {children}
       <input
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         onChange={(e) => {
           const file = e.target.files?.[0]
           // Reset so picking the same file again still fires change.
