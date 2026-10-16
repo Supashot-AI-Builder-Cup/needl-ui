@@ -5,7 +5,14 @@ import { useToast } from '../../../context/toast/useToast'
 import { SCREENSHOT_SLOTS } from '../../../data/screenshotSlots'
 import type { TextKey } from '../../../i18n'
 import { readAsDataUrl } from '../../../lib/file'
-import { ACCEPTED_IMAGE_TYPES, MAX_EXTRA_SHOTS, MAX_IMAGE_BYTES } from '../../../services/api/screenshotForm'
+import {
+  ACCEPTED_IMAGE_TYPES,
+  dataUrlBytes,
+  draftBytes,
+  MAX_EXTRA_SHOTS,
+  MAX_IMAGE_BYTES,
+  MAX_TOTAL_BYTES,
+} from '../../../services/api/screenshotForm'
 import type { SlotKey } from '../../../types/domain'
 
 /** `onContinue` sends the screenshots and resolves to an error text, or null when the check started. */
@@ -18,8 +25,11 @@ export function useScreenshotUploads(onContinue: () => Promise<TextKey | null>) 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<TextKey | null>(null)
 
-  /** Same limits as the API, checked before the image is kept. */
-  const accept = async (file: File): Promise<string | null> => {
+  /**
+   * Same limits as the API, checked before the image is kept.
+   * `replaces` is the image this file takes the place of, so its size is not counted twice.
+   */
+  const accept = async (file: File, replaces?: string): Promise<string | null> => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       showToast(t('errFileType'))
       return null
@@ -28,12 +38,17 @@ export function useScreenshotUploads(onContinue: () => Promise<TextKey | null>) 
       showToast(t('errFileSize'))
       return null
     }
+    const replacedBytes = replaces ? dataUrlBytes(replaces) : 0
+    if (draftBytes(uploads, extras) - replacedBytes + file.size > MAX_TOTAL_BYTES) {
+      showToast(t('errTotalSize'))
+      return null
+    }
     setError(null)
     return readAsDataUrl(file)
   }
 
   const setSlotFile = async (key: SlotKey, file: File) => {
-    const image = await accept(file)
+    const image = await accept(file, uploads[key])
     if (image) setUploads((u) => ({ ...u, [key]: image }))
   }
 
@@ -59,7 +74,7 @@ export function useScreenshotUploads(onContinue: () => Promise<TextKey | null>) 
   }
 
   const replaceExtra = async (id: string, file: File) => {
-    const image = await accept(file)
+    const image = await accept(file, extras.find((x) => x.id === id)?.image)
     if (image) setExtras((list) => list.map((x) => (x.id === id ? { ...x, image } : x)))
   }
 

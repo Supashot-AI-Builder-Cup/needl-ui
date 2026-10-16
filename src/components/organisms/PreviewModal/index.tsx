@@ -42,7 +42,7 @@ export function PreviewModal({ jobId, source, onClose, onComplete, onUseScreensh
     sheetRef,
     bodyRef,
     runButtonRef,
-  } = usePreviewModal({ jobId, onClose, onComplete })
+  } = usePreviewModal({ jobId, source, onClose, onComplete })
   const titleId = useId()
   const dismissLabel = source === 'shots' ? t('back') : t('change')
 

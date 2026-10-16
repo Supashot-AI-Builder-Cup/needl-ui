@@ -9,6 +9,7 @@ import type { TextKey } from '../../i18n'
 import { groupChecks } from '../../lib/checks'
 import { countBySeverity, FLAG_SEVERITIES } from '../../lib/severity'
 import { buildShareText } from '../../lib/shareText'
+import { isNotFound, requestErrorText } from '../../services/api/errors'
 import type { SectionKey } from '../../types/domain'
 
 const SECTION_META: Record<SectionKey, { title: TextKey; icon: IconName }> = {
@@ -29,13 +30,14 @@ export function useResultPage() {
 
   // Right after a check the result is already in memory; otherwise (history, refresh) ask the API.
   const cached = getResult(jobId)
-  const { job, error } = useVerificationJob(cached ? null : jobId)
+  const { job, error, retry } = useVerificationJob(cached ? null : jobId)
   const result = cached ?? job?.verification ?? null
-  const status: 'loading' | 'ready' | 'missing' = result
-    ? 'ready'
-    : error || job?.status === 'failed'
-      ? 'missing'
-      : 'loading'
+  // missing: the result does not exist (any more). error: it could not be loaded right now.
+  let status: 'loading' | 'ready' | 'missing' | 'error' = 'loading'
+  if (result) status = 'ready'
+  else if (job?.status === 'failed' || isNotFound(error)) status = 'missing'
+  else if (error) status = 'error'
+  const errorText: TextKey | null = status === 'error' ? requestErrorText(error, 'link') : null
 
   const counts = result ? countBySeverity(result.checks) : {}
   const sections = result
@@ -77,6 +79,8 @@ export function useResultPage() {
 
   return {
     status,
+    errorText,
+    retry,
     result,
     counts,
     sections,
