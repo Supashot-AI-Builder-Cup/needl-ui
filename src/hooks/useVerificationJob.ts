@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../services/api/client'
 import { getJob } from '../services/api/verificationJobs'
 import type { VerificationJob } from '../types/api'
@@ -13,11 +13,13 @@ function isTransient(error: unknown): boolean {
 
 /**
  * Poll a verification job until it is completed or failed, following the
- * server's Retry-After. Pass null to stay idle.
+ * server's Retry-After. Pass null to stay idle. `retry()` starts polling again
+ * after `error` was set.
  */
 export function useVerificationJob(jobId: string | null) {
   const [job, setJob] = useState<VerificationJob | null>(null)
-  const [error, setError] = useState<unknown>(null)
+  const [failure, setFailure] = useState<{ id: string; error: unknown } | null>(null)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     if (!jobId) return
@@ -40,7 +42,7 @@ export function useVerificationJob(jobId: string | null) {
           const wait = err instanceof ApiError && err.retryAfter ? err.retryAfter : RETRY_POLL_S
           timer = window.setTimeout(poll, wait * 1000)
         } else {
-          setError(err)
+          setFailure({ id: jobId, error: err })
         }
       }
     }
@@ -50,7 +52,12 @@ export function useVerificationJob(jobId: string | null) {
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [jobId])
+  }, [jobId, attempt])
 
-  return { job, error }
+  const retry = useCallback(() => {
+    setFailure(null)
+    setAttempt((n) => n + 1)
+  }, [])
+
+  return { job: job?.id === jobId ? job : null, error: failure?.id === jobId ? failure.error : null, retry }
 }

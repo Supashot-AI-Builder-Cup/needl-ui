@@ -7,7 +7,7 @@ function isEntry(value: unknown): value is HistoryEntry {
   if (!value || typeof value !== 'object') return false
   const e = value as Record<string, unknown>
   return (
-    typeof e.jobId === 'string' &&
+    typeof e.verificationId === 'string' &&
     typeof e.name === 'string' &&
     (e.image == null || typeof e.image === 'string') &&
     typeof e.price === 'string' &&
@@ -22,9 +22,9 @@ export function sanitizeHistory(raw: unknown): HistoryEntry[] {
   return Array.isArray(raw) ? raw.filter(isEntry) : []
 }
 
-export function historyEntryFrom(jobId: string, result: VerificationResult): HistoryEntry {
+export function historyEntryFrom(result: VerificationResult): HistoryEntry {
   return {
-    jobId,
+    verificationId: result.id,
     name: result.displayName,
     image: result.product.image ?? null,
     price: result.product.price,
@@ -34,7 +34,7 @@ export function historyEntryFrom(jobId: string, result: VerificationResult): His
   }
 }
 
-/** Put `entry` first, drop an older entry for the same job, cap the list length. */
+/** Put `entry` first, drop an older entry for the same verification, cap the list length. */
 export function addHistoryEntry(list: HistoryEntry[], entry: HistoryEntry): HistoryEntry[] {
-  return [entry, ...list.filter((h) => h.jobId !== entry.jobId)].slice(0, MAX_ENTRIES)
+  return [entry, ...list.filter((h) => h.verificationId !== entry.verificationId)].slice(0, MAX_ENTRIES)
 }

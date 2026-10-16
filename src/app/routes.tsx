@@ -8,7 +8,9 @@ export function AppRoutes() {
     <Routes>
       <Route element={<RootLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="result" element={<ResultPage />} />
         <Route path="result/:jobId" element={<ResultPage />} />
+        <Route path="history/:verificationId" element={<ResultPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
