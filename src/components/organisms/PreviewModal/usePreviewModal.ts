@@ -6,6 +6,7 @@ import { prefersReducedMotion } from '../../../lib/motion'
 import { createTimerBag } from '../../../lib/timers'
 import { jobErrorText, requestErrorText } from '../../../services/api/errors'
 import type { VerificationResult } from '../../../types/api'
+import type { Source } from '../../../types/domain'
 import { useCheckRunner } from './useCheckRunner'
 
 /** entering: mounted, not shown yet · open: shown · closing: exit animation */
@@ -16,13 +17,15 @@ const COMPLETE_DELAY_MS = 200
 
 interface Options {
   jobId: string
+  /** How the check was started; picks the right text for request errors. */
+  source: Source
   /** Called after the exit animation; the parent should unmount the modal. */
   onClose: () => void
   /** Called with the result once the job is completed and the log has finished. */
   onComplete: (jobId: string, result: VerificationResult) => void
 }
 
-export function usePreviewModal({ jobId, onClose, onComplete }: Options) {
+export function usePreviewModal({ jobId, source, onClose, onComplete }: Options) {
   const [visibility, setVisibility] = useState<Visibility>('entering')
   const [timers] = useState(createTimerBag)
   const runButtonRef = useRef<HTMLButtonElement>(null)
@@ -102,7 +105,7 @@ export function usePreviewModal({ jobId, onClose, onComplete }: Options) {
 
   let errorText: TextKey | null = null
   if (job?.status === 'failed') errorText = jobErrorText(job.error?.code ?? '')
-  else if (pollError) errorText = requestErrorText(pollError, 'link')
+  else if (pollError) errorText = requestErrorText(pollError, source)
 
   return {
     visibility,

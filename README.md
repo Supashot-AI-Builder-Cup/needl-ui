@@ -21,9 +21,22 @@ Data cek datang dari **needl-service** lewat `POST /api/v1/verification-jobs` da
    npm run dev      # http://localhost:5173
    npm run build    # typecheck + build produksi
    npm run lint
+   npm test         # Vitest, sekali jalan
    ```
 
 needl-service harus mengizinkan origin UI di `CORS_ORIGINS` (default sudah `http://localhost:5173`).
+
+Vitest 5 resminya butuh Node 22.12+ atau 24 (`nvm use 24`); di Node 20.19 tesnya juga jalan, dengan peringatan engine dari npm.
+
+## Produksi
+
+`VITE_API_URL` dibaca saat build, jadi build ulang dengan URL Cloud Run needl-service (dicetak oleh `deploy/deploy.sh`):
+
+```bash
+VITE_API_URL=https://needl-service-xxxxx.asia-southeast2.run.app npm run build
+```
+
+Origin tempat UI di-host harus ada di `CORS_ORIGINS` needl-service (`deploy/env.yaml`).
 
 Dengan needl-service mode `stub`, link yang mengandung shop id `218334561` memberi contoh hasil "aman", link lain memberi contoh "risiko tinggi":
 
@@ -39,6 +52,10 @@ Dengan needl-service mode `stub`, link yang mengandung shop id `218334561` membe
 5. Riwayat disegarkan dari `GET /api/v1/verifications`; membuka atau me-refresh hasil mengambil data lewat `GET /api/v1/verifications/{verification_id}`.
 
 Job gagal menampilkan pesan dari `error.code`. Kalau link Shopee tidak bisa diambil, modal menawarkan tab Screenshot.
+
+## Pesan error
+
+Semua error dari backend dipetakan di `src/services/api/errors.ts` ke teks i18n yang singkat (apa yang terjadi, apa yang bisa dilakukan). Pengguna tidak pernah melihat `message` dari server, error code, status HTTP, atau `request_id`. Saat development, tiap request yang gagal dicatat di console browser (`[needl] request failed`) bersama `request_id` untuk dicocokkan dengan log server. Halaman yang crash saat render diganti pesan umum oleh `ErrorBoundary` di `RootLayout`. Arti tiap pesan ada di README needl-service, bagian "What the UI message means".
 
 ## Struktur folder
 

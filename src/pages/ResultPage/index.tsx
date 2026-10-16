@@ -15,16 +15,29 @@ export function ResultPage() {
   const { t } = usePreferences()
   const page = useResultPage()
 
-  if (page.status === 'loading' || !page.result) {
-    return page.status === 'missing' ? (
+  if (page.status === 'missing') {
+    return (
       <StatusMessage title={t('resultMissing')} text={t('resultMissingHint')}>
         <Button variant="primary" block onClick={page.goHome}>
           {t('another')}
         </Button>
       </StatusMessage>
-    ) : (
-      <StatusMessage busy title={t('resultLoading')} />
     )
+  }
+  if (page.status === 'error' && page.errorText) {
+    return (
+      <StatusMessage title={t('resultError')} text={t(page.errorText)}>
+        <Button variant="primary" block onClick={page.retry}>
+          {t('tryAgain')}
+        </Button>
+        <Button variant="link" onClick={page.goHome}>
+          {t('another')}
+        </Button>
+      </StatusMessage>
+    )
+  }
+  if (!page.result) {
+    return <StatusMessage busy title={t('resultLoading')} />
   }
 
   return (

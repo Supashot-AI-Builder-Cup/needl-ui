@@ -4,12 +4,14 @@ import type { IconName } from '../../components/atoms/Icon'
 import { useCheck } from '../../context/check/useCheck'
 import { usePreferences } from '../../context/preferences/usePreferences'
 import { useClipboard } from '../../hooks/useClipboard'
-import { useVerification } from '../../hooks/useVerification'
 import type { TextKey } from '../../i18n'
 import { groupChecks } from '../../lib/checks'
 import { countBySeverity, FLAG_SEVERITIES } from '../../lib/severity'
 import { buildShareText } from '../../lib/shareText'
+import { isNotFound, jobErrorText, requestErrorText } from '../../services/api/errors'
 import type { SectionKey } from '../../types/domain'
+import { useVerification } from '../../hooks/useVerification'
+import { useVerificationJob } from '../../hooks/useVerificationJob'
 
 const SECTION_META: Record<SectionKey, { title: TextKey; icon: IconName }> = {
   store: { title: 'secStore', icon: 'store' },
@@ -18,7 +20,7 @@ const SECTION_META: Record<SectionKey, { title: TextKey; icon: IconName }> = {
 }
 
 export function useResultPage() {
-  const { verificationId = '' } = useParams()
+  const { jobId = '', verificationId = '' } = useParams()
   const { getResult } = useCheck()
   const { t, pick } = usePreferences()
   const { copy } = useClipboard()
@@ -29,21 +31,32 @@ export function useResultPage() {
 
   // Right after a check the result is already in memory; otherwise (history, refresh) ask the API.
   const cached = getResult(verificationId)
-  const { result: fetched, error } = useVerification(cached ? null : verificationId)
-  const result = cached ?? fetched
-  const status: 'loading' | 'ready' | 'missing' = result
-    ? 'ready'
-    : error
-      ? 'missing'
-      : 'loading'
+  const { job, error: jobError, retry: retryJob } = useVerificationJob(jobId || null)
+  const { result: fetched, error: verificationError, retry: retryVerification } = useVerification(cached ? null : verificationId || null)
+  const error = jobId ? jobError : verificationError
+  const retry = jobId ? retryJob : retryVerification
+  const result = job?.verification ?? cached ?? fetched
+  // missing: the result does not exist (any more). error: it could not be loaded right now.
+  let status: 'loading' | 'ready' | 'missing' | 'error' = 'loading'
+  if (result) status = 'ready'
+  else if (!jobId && !verificationId) status = 'missing'
+  else if (job?.status === 'failed') status = 'error'
+  else if (job?.status === 'completed' && !job.verification) status = 'missing'
+  else if (isNotFound(error)) status = 'missing'
+  else if (error) status = 'error'
+  const errorText: TextKey | null = status === 'error'
+    ? jobId && job?.status === 'failed' && job.error
+      ? jobErrorText(job.error.code)
+      : requestErrorText(error, 'link')
+    : null
 
   const counts = result ? countBySeverity(result.checks) : {}
   const sections = result
     ? groupChecks(result.checks).map((group) => ({
-        group,
-        title: t(SECTION_META[group.section].title),
-        icon: SECTION_META[group.section].icon,
-      }))
+      group,
+      title: t(SECTION_META[group.section].title),
+      icon: SECTION_META[group.section].icon,
+    }))
     : []
 
   const toggleSection = (key: SectionKey) => setOpenSections((s) => ({ ...s, [key]: !s[key] }))
@@ -77,6 +90,8 @@ export function useResultPage() {
 
   return {
     status,
+    errorText,
+    retry,
     result,
     counts,
     sections,

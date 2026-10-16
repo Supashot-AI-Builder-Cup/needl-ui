@@ -47,9 +47,9 @@ export function useHomePage() {
     }
   }
 
-  const completeCheck = (_jobId: string, result: VerificationResult) => {
+  const completeCheck = (jobId: string, result: VerificationResult) => {
     saveResult(result)
-    navigate(`/result/${result.id}`)
+    navigate(`/result/${jobId}`)
   }
 
   const switchToScreenshots = () => {
@@ -66,7 +66,7 @@ export function useHomePage() {
     continueShots,
     completeCheck,
     switchToScreenshots,
-    openHistory: (index: number) => navigate(`/result/${history[index].verificationId}`),
+    openHistory: (index: number) => navigate(`/history/${history[index].verificationId}`),
     historyCards: history.map(({ name, image, price, score, verdict }) => ({ name, image, price, score, verdict })),
     historyError,
     refreshHistory,
