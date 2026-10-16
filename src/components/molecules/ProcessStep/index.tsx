@@ -6,8 +6,10 @@ export type StepStatus = 'pending' | 'running' | 'done'
 interface ProcessStepProps {
   index: number
   label: string
+  /** Shown once the step is done; empty while the result is unknown. */
   result: string
-  severity: Severity
+  /** Colors the mark and result; leave out while unknown. */
+  severity?: Severity
   status: StepStatus
 }
 
@@ -15,10 +17,10 @@ interface ProcessStepProps {
 export function ProcessStep({ index, label, result, severity, status }: ProcessStepProps) {
   return (
     <li className={status} data-step={index}>
-      <span className={`mark sev-${severity}`} />
+      <span className={severity ? `mark sev-${severity}` : 'mark'} />
       <div>
         <div>{label}</div>
-        <div className={`res sev-${severity}`}>{status === 'done' ? result : ''}</div>
+        <div className={severity ? `res sev-${severity}` : 'res'}>{status === 'done' ? result : ''}</div>
       </div>
     </li>
   )

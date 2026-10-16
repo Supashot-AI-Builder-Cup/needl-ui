@@ -32,14 +32,14 @@ export function HomePage() {
       ) : (
         <ScreenshotUploader onContinue={page.continueShots} />
       )}
-      {page.modalOpen && page.subject && page.productView && (
+      {page.active && (
         <PreviewModal
-          productView={page.productView}
-          scenario={page.subject.scenario}
-          steps={page.steps}
-          dismissLabel={page.subject.source === 'shots' ? t('back') : t('change')}
+          key={page.active.jobId}
+          jobId={page.active.jobId}
+          source={page.active.source}
           onClose={page.closeModal}
           onComplete={page.completeCheck}
+          onUseScreenshots={page.switchToScreenshots}
         />
       )}
     </HomeTemplate>

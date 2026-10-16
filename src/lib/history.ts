@@ -1,24 +1,40 @@
-import type { HistoryEntry, Scenario } from '../types/domain'
+import type { VerificationResult } from '../types/api'
+import type { HistoryEntry } from '../types/domain'
 
 const MAX_ENTRIES = 30
 
-function isScenario(value: unknown): value is Scenario {
-  return value === 'risky' || value === 'safe'
+function isEntry(value: unknown): value is HistoryEntry {
+  if (!value || typeof value !== 'object') return false
+  const e = value as Record<string, unknown>
+  return (
+    typeof e.jobId === 'string' &&
+    typeof e.name === 'string' &&
+    (e.image == null || typeof e.image === 'string') &&
+    typeof e.price === 'string' &&
+    typeof e.score === 'number' &&
+    (e.verdict === 'high' || e.verdict === 'safe') &&
+    typeof e.checkedAt === 'string'
+  )
 }
 
 /** Keep only well-formed entries from untrusted storage data. */
 export function sanitizeHistory(raw: unknown): HistoryEntry[] {
-  if (!Array.isArray(raw)) return []
-  return raw.flatMap((item): HistoryEntry[] => {
-    if (!item || typeof item !== 'object') return []
-    const { scenario, name, link } = item as Record<string, unknown>
-    if (!isScenario(scenario)) return []
-    return [{ scenario, name: typeof name === 'string' ? name : null, link: typeof link === 'string' ? link : null }]
-  })
+  return Array.isArray(raw) ? raw.filter(isEntry) : []
 }
 
-/** Put `entry` first, drop its older duplicate, cap the list length. */
+export function historyEntryFrom(jobId: string, result: VerificationResult): HistoryEntry {
+  return {
+    jobId,
+    name: result.displayName,
+    image: result.product.image ?? null,
+    price: result.product.price,
+    score: result.product.score,
+    verdict: result.product.verdict,
+    checkedAt: result.checked_at,
+  }
+}
+
+/** Put `entry` first, drop an older entry for the same job, cap the list length. */
 export function addHistoryEntry(list: HistoryEntry[], entry: HistoryEntry): HistoryEntry[] {
-  const rest = list.filter((h) => !(h.link === entry.link && h.name === entry.name && h.scenario === entry.scenario))
-  return [entry, ...rest].slice(0, MAX_ENTRIES)
+  return [entry, ...list.filter((h) => h.jobId !== entry.jobId)].slice(0, MAX_ENTRIES)
 }

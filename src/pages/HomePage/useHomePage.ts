@@ -2,54 +2,67 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useCheck } from '../../context/check/useCheck'
 import { useDraft } from '../../context/draft/useDraft'
-import type { ValidLink } from '../../lib/parseLink'
-import { getCheckSteps, getProductView } from '../../services/checkService'
-import type { Subject } from '../../types/domain'
+import { usePreferences } from '../../context/preferences/usePreferences'
+import type { TextKey } from '../../i18n'
+import { requestErrorText } from '../../services/api/errors'
+import { buildScreenshotForm } from '../../services/api/screenshotForm'
+import { createLinkJob, createScreenshotJob, toApiLocale } from '../../services/api/verificationJobs'
+import type { VerificationResult } from '../../types/api'
+import type { Source } from '../../types/domain'
+
+interface ActiveJob {
+  jobId: string
+  source: Source
+}
 
 export function useHomePage() {
-  const { tab, setTab } = useDraft()
-  const { subject, setSubject, history, addToHistory } = useCheck()
+  const { tab, setTab, uploads, extras } = useDraft()
+  const { history, saveResult } = useCheck()
+  const { lang } = usePreferences()
   const navigate = useNavigate()
-  const [modalOpen, setModalOpen] = useState(false)
+  const [active, setActive] = useState<ActiveJob | null>(null)
 
-  const openPreview = (next: Subject) => {
-    setSubject(next)
-    setModalOpen(true)
+  const submitLink = async (url: string): Promise<TextKey | null> => {
+    try {
+      const job = await createLinkJob(url, toApiLocale(lang))
+      setActive({ jobId: job.id, source: 'link' })
+      return null
+    } catch (error) {
+      return requestErrorText(error, 'link')
+    }
   }
 
-  const submitLink = (link: ValidLink) =>
-    openPreview({ scenario: link.scenario, name: link.name, link: link.link, source: 'link' })
-
-  // Screenshot checks always show the risky sample for now.
-  const continueShots = () => openPreview({ scenario: 'risky', name: null, link: null, source: 'shots' })
-
-  const openHistory = (index: number) => {
-    setSubject({ ...history[index], source: 'history' })
-    navigate('/result')
+  const continueShots = async (): Promise<TextKey | null> => {
+    try {
+      const form = await buildScreenshotForm(uploads, extras, toApiLocale(lang))
+      const job = await createScreenshotJob(form)
+      setActive({ jobId: job.id, source: 'shots' })
+      return null
+    } catch (error) {
+      return requestErrorText(error, 'shots')
+    }
   }
 
-  const completeCheck = () => {
-    if (subject) addToHistory(subject)
-    navigate('/result')
+  const completeCheck = (jobId: string, result: VerificationResult) => {
+    saveResult(jobId, result)
+    navigate(`/result/${jobId}`)
   }
 
-  const historyCards = history.map((entry) => {
-    const { product, displayName } = getProductView(entry)
-    return { name: displayName, price: product.price, score: product.score, verdict: product.verdict }
-  })
+  const switchToScreenshots = () => {
+    setActive(null)
+    setTab('shots')
+  }
 
   return {
     tab,
     setTab,
-    subject,
-    productView: subject ? getProductView(subject) : null,
-    steps: getCheckSteps(),
-    modalOpen,
-    closeModal: () => setModalOpen(false),
+    active,
+    closeModal: () => setActive(null),
     submitLink,
     continueShots,
-    openHistory,
     completeCheck,
-    historyCards,
+    switchToScreenshots,
+    openHistory: (index: number) => navigate(`/result/${history[index].jobId}`),
+    historyCards: history.map(({ name, image, price, score, verdict }) => ({ name, image, price, score, verdict })),
   }
 }

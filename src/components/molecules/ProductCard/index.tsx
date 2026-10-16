@@ -1,21 +1,34 @@
 import { usePreferences } from '../../../context/preferences/usePreferences'
-import type { Product } from '../../../types/domain'
+import type { ProductPreview } from '../../../types/api'
 import { ProductTile } from '../../atoms/ProductTile'
 import { Stars } from '../../atoms/Stars'
 import { Tag } from '../../atoms/Tag'
 import './index.css'
 
 interface ProductCardProps {
-  product: Product
-  displayName: string
+  /** Leave out while the product is loading to show a placeholder. */
+  product?: ProductPreview
+  displayName?: string
 }
 
 /** Listing preview: photo, name, price, rating and store. */
 export function ProductCard({ product, displayName }: ProductCardProps) {
   const { t, pick } = usePreferences()
+  if (!product) {
+    return (
+      <div className="preview-card" aria-busy="true">
+        <div className="ptile sk" />
+        <div className="preview-meta">
+          <div className="sk sk-line" />
+          <div className="sk sk-line short" />
+          <div className="sk sk-price" />
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="preview-card">
-      <ProductTile />
+      <ProductTile src={product.image} alt={displayName ?? product.name} />
       <div className="preview-meta">
         <p className="pname">
           {product.mall && (
@@ -23,7 +36,7 @@ export function ProductCard({ product, displayName }: ProductCardProps) {
               <Tag variant="mall">Mall</Tag>{' '}
             </>
           )}
-          {displayName}
+          {displayName ?? product.name}
         </p>
         <div className="price">
           <b>{product.price}</b>
@@ -38,7 +51,7 @@ export function ProductCard({ product, displayName }: ProductCardProps) {
           </span>
         </div>
         <div className="storeline">
-          <span className="avatar">D</span>
+          <span className="avatar">{product.store.trim().charAt(0).toUpperCase() || '?'}</span>
           <div>
             <div style={{ fontWeight: 500 }}>{product.store}</div>
             <div className="small muted">

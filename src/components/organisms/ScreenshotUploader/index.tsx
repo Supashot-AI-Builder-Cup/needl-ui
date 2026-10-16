@@ -1,4 +1,5 @@
 import { usePreferences } from '../../../context/preferences/usePreferences'
+import type { TextKey } from '../../../i18n'
 import { buttonClass } from '../../../lib/buttonClass'
 import { Button } from '../../atoms/Button'
 import { FileButton } from '../../atoms/FileButton'
@@ -8,12 +9,13 @@ import { useScreenshotUploads } from './useScreenshotUploads'
 import './index.css'
 
 interface ScreenshotUploaderProps {
-  onContinue: () => void
+  /** Sends the screenshots; resolves to an error text, or null when the check started. */
+  onContinue: () => Promise<TextKey | null>
 }
 
 export function ScreenshotUploader({ onContinue }: ScreenshotUploaderProps) {
   const { t, pick } = usePreferences()
-  const s = useScreenshotUploads()
+  const s = useScreenshotUploads(onContinue)
   return (
     <>
       <h2 style={{ marginTop: 10 }}>{t('shotsH')}</h2>
@@ -49,13 +51,22 @@ export function ScreenshotUploader({ onContinue }: ScreenshotUploaderProps) {
           />
         ))}
       </ul>
-      <FileButton className={buttonClass({}, 'addshot')} onFile={s.addExtra}>
-        <Icon name="plus" strokeWidth={1.9} />
-        {t('addShot')}
-      </FileButton>
+      {s.canAddExtra ? (
+        <FileButton className={buttonClass({}, 'addshot')} onFile={s.addExtra}>
+          <Icon name="plus" strokeWidth={1.9} />
+          {t('addShot')}
+        </FileButton>
+      ) : (
+        <p className="muted small">{t('errTooManyExtras')}</p>
+      )}
+      {s.error && (
+        <p className="error" role="alert">
+          {t(s.error)}
+        </p>
+      )}
       <div className="field-actions">
-        <Button variant="primary" block disabled={!s.canContinue} onClick={onContinue}>
-          {t('cont')}
+        <Button variant="primary" block disabled={!s.canContinue} onClick={s.submit}>
+          {s.submitting ? t('sending') : t('cont')}
         </Button>
       </div>
     </>

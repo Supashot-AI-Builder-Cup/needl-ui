@@ -222,3 +222,7 @@
 .pv-sheet.checking .log li:last-child {
   border-bottom: 0;
 }
+.pv-loading {
+  margin: -6px 0 12px;
+  text-align: center;
+}

@@ -1,31 +1,30 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
-import { addHistoryEntry, sanitizeHistory } from '../../lib/history'
+import { addHistoryEntry, historyEntryFrom, sanitizeHistory } from '../../lib/history'
 import { readJSON, STORAGE_KEYS, writeStorage } from '../../lib/storage'
-import { getHistorySeed } from '../../services/checkService'
-import type { HistoryEntry, Subject } from '../../types/domain'
+import type { VerificationResult } from '../../types/api'
+import type { HistoryEntry } from '../../types/domain'
 import { CheckContext } from './CheckContext'
 
 function initialHistory(): HistoryEntry[] {
-  const saved = sanitizeHistory(readJSON(STORAGE_KEYS.history))
-  return saved.length ? saved : getHistorySeed()
+  return sanitizeHistory(readJSON(STORAGE_KEYS.history))
 }
 
 export function CheckProvider({ children }: { children: ReactNode }) {
-  const [subject, setSubject] = useState<Subject | null>(null)
   const [history, setHistory] = useState<HistoryEntry[]>(initialHistory)
+  const [results, setResults] = useState<Record<string, VerificationResult>>({})
 
-  const addToHistory = useCallback(
-    ({ scenario, name, link }: Subject) => {
-      const next = addHistoryEntry(history, { scenario, name, link })
+  const getResult = useCallback((jobId: string) => results[jobId], [results])
+
+  const saveResult = useCallback(
+    (jobId: string, result: VerificationResult) => {
+      setResults((prev) => ({ ...prev, [jobId]: result }))
+      const next = addHistoryEntry(history, historyEntryFrom(jobId, result))
       setHistory(next)
       writeStorage(STORAGE_KEYS.history, JSON.stringify(next))
     },
     [history],
   )
 
-  const value = useMemo(
-    () => ({ subject, setSubject, history, addToHistory }),
-    [subject, history, addToHistory],
-  )
+  const value = useMemo(() => ({ history, getResult, saveResult }), [history, getResult, saveResult])
   return <CheckContext.Provider value={value}>{children}</CheckContext.Provider>
 }

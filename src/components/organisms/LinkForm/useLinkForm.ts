@@ -1,16 +1,18 @@
 import { useRef, useState } from 'react'
 import { useDraft } from '../../../context/draft/useDraft'
+import type { TextKey } from '../../../i18n'
 import { readClipboard } from '../../../lib/clipboard'
-import { parseLink, type ValidLink } from '../../../lib/parseLink'
+import { parseLink } from '../../../lib/parseLink'
 
-type LinkError = 'errEmpty' | 'errLink' | 'pasteDenied'
-
-export function useLinkForm(onValid: (link: ValidLink) => void) {
+/** `onValid` starts the check and resolves to an error text, or null when it started. */
+export function useLinkForm(onValid: (link: string) => Promise<TextKey | null>) {
   const { link, setLink } = useDraft()
-  const [error, setError] = useState<LinkError | null>(null)
+  const [error, setError] = useState<TextKey | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const submit = () => {
+  const submit = async () => {
+    if (submitting) return
     const result = parseLink(link)
     if (!result.ok) {
       setError(result.error)
@@ -18,7 +20,13 @@ export function useLinkForm(onValid: (link: ValidLink) => void) {
       return
     }
     setError(null)
-    onValid(result)
+    setSubmitting(true)
+    const failure = await onValid(result.link)
+    setSubmitting(false)
+    if (failure) {
+      setError(failure)
+      inputRef.current?.focus()
+    }
   }
 
   const paste = async () => {
@@ -36,5 +44,5 @@ export function useLinkForm(onValid: (link: ValidLink) => void) {
     }
   }
 
-  return { value: link, setValue: setLink, error, inputRef, submit, paste }
+  return { value: link, setValue: setLink, error, submitting, inputRef, submit, paste }
 }
