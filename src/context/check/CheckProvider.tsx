@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
-import { addHistoryEntry, historyEntryFrom, historyEntryFromItem, sanitizeHistory } from '../../lib/history'
+import { addHistoryEntry, historyEntryFrom, sanitizeHistory } from '../../lib/history'
 import { readJSON, STORAGE_KEYS, writeStorage } from '../../lib/storage'
-import type { VerificationHistoryItem, VerificationResult } from '../../types/api'
+import type { VerificationResult } from '../../types/api'
 import type { HistoryEntry } from '../../types/domain'
-import { listVerifications } from '../../services/api/verificationJobs'
 import { CheckContext } from './CheckContext'
 
 function initialHistory(): HistoryEntry[] {
@@ -13,45 +12,7 @@ function initialHistory(): HistoryEntry[] {
 export function CheckProvider({ children }: { children: ReactNode }) {
   const [history, setHistory] = useState<HistoryEntry[]>(initialHistory)
   const [results, setResults] = useState<Record<string, VerificationResult>>({})
-  const [historyError, setHistoryError] = useState(false)
-  const [historyCursor, setHistoryCursor] = useState<string | null>(null)
-  const [loadingMoreHistory, setLoadingMoreHistory] = useState(false)
-
-  const mapHistory = (items: VerificationHistoryItem[]): HistoryEntry[] => items.map(historyEntryFromItem)
-
   const getResult = useCallback((verificationId: string) => results[verificationId], [results])
-
-  const refreshHistory = useCallback(async () => {
-    try {
-      const response = await listVerifications()
-      const next = mapHistory(response.data)
-      setHistory(next)
-      setHistoryCursor(response.meta.next_cursor)
-      writeStorage(STORAGE_KEYS.history, JSON.stringify(next))
-      setHistoryError(false)
-    } catch (error) {
-      setHistoryError(true)
-      throw error
-    }
-  }, [])
-
-  const loadMoreHistory = useCallback(async () => {
-    if (!historyCursor || loadingMoreHistory) return
-    setLoadingMoreHistory(true)
-    try {
-      const response = await listVerifications(20, historyCursor)
-      const next = [...history, ...mapHistory(response.data)]
-      setHistory(next)
-      setHistoryCursor(response.meta.next_cursor)
-      writeStorage(STORAGE_KEYS.history, JSON.stringify(next))
-      setHistoryError(false)
-    } catch (error) {
-      setHistoryError(true)
-      throw error
-    } finally {
-      setLoadingMoreHistory(false)
-    }
-  }, [history, historyCursor, loadingMoreHistory])
 
   const saveResult = useCallback(
     (result: VerificationResult) => {
@@ -68,13 +29,8 @@ export function CheckProvider({ children }: { children: ReactNode }) {
       history,
       getResult,
       saveResult,
-      refreshHistory,
-      historyError,
-      hasMoreHistory: Boolean(historyCursor),
-      loadingMoreHistory,
-      loadMoreHistory,
     }),
-    [history, getResult, saveResult, refreshHistory, historyError, historyCursor, loadingMoreHistory, loadMoreHistory],
+    [history, getResult, saveResult],
   )
   return <CheckContext.Provider value={value}>{children}</CheckContext.Provider>
 }

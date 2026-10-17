@@ -5,14 +5,12 @@ import type {
   VerificationJob,
   VerificationJobAccepted,
   VerificationJobResponse,
-  VerificationHistoryResponse,
   VerificationResponse,
   VerificationResult,
 } from '../../types/api'
 import { request } from './client'
 
 const JOBS = '/api/v1/verification-jobs'
-const VERIFICATIONS = '/api/v1/verifications'
 
 export function toApiLocale(lang: Lang): ApiLocale {
   return lang === 'id' ? 'id-ID' : 'en-US'
@@ -43,14 +41,7 @@ export async function getJob(jobId: string): Promise<{ job: VerificationJob; ret
   return { job: body.data, retryAfter }
 }
 
-export async function listVerifications(limit = 20, cursor?: string): Promise<VerificationHistoryResponse> {
-  const params = new URLSearchParams({ limit: String(limit) })
-  if (cursor) params.set('cursor', cursor)
-  const { body } = await request<VerificationHistoryResponse>(`${VERIFICATIONS}?${params}`)
-  return body
-}
-
 export async function getVerification(verificationId: string): Promise<VerificationResult> {
-  const { body } = await request<VerificationResponse>(`${VERIFICATIONS}/${encodeURIComponent(verificationId)}`)
+  const { body } = await request<VerificationResponse>(`/api/v1/verifications/${encodeURIComponent(verificationId)}`)
   return body.data
 }

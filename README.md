@@ -1,102 +1,101 @@
 # needl-ui
 
-Frontend needl: cek risiko listing Shopee (nama toko tiruan, ulasan palsu, klaim BPOM/Halal, dll).
-React 19 + TypeScript + Vite, routing pakai `react-router`.
+needl frontend for checking Shopee listing risks, including impersonated stores, fake reviews, and BPOM/Halal claims. Built with React 19, TypeScript, Vite, and `react-router`.
 
-Data cek datang dari **needl-service** lewat `POST /api/v1/verification-jobs` dan `GET /api/v1/verification-jobs/{id}`. Riwayat dibaca lewat `GET /api/v1/verifications`, lalu detail tersimpan lewat `GET /api/v1/verifications/{verification_id}` (lihat `.agents/docs/API_Contract.md`). Klien API ada di `src/services/api/`.
+Checks use **needl-service** through `POST /api/v1/verification-jobs` and `GET /api/v1/verification-jobs/{id}`. Completed product search results are saved in the browser's local history and shown on the homepage. Opening a saved result fetches its details through `GET /api/v1/verifications/{verification_id}`. See `.agents/docs/API_Contract.md`; API clients live in `src/services/api/`.
 
-## Menjalankan
+## Run locally
 
-1. Jalankan needl-service dulu (lihat README di sana), default di `http://localhost:8000`.
-2. Atur alamat API kalau bukan default:
+1. Start needl-service first (see its README); the default URL is `http://localhost:8000`.
+2. Set the API URL if it differs from the default:
 
    ```bash
-   cp .env.example .env.local   # isi VITE_API_URL
+   cp .env.example .env.local   # set VITE_API_URL
    ```
 
-3. Jalankan UI:
+3. Start the UI:
 
    ```bash
    npm install
    npm run dev      # http://localhost:5173
-   npm run build    # typecheck + build produksi
+   npm run build    # typecheck + production build
    npm run lint
-   npm test         # Vitest, sekali jalan
+   npm test         # Vitest, single run
    ```
 
-needl-service harus mengizinkan origin UI di `CORS_ORIGINS` (default sudah `http://localhost:5173`).
+needl-service must allow the UI origin in `CORS_ORIGINS` (the default is `http://localhost:5173`).
 
-Vitest 5 resminya butuh Node 22.12+ atau 24 (`nvm use 24`); di Node 20.19 tesnya juga jalan, dengan peringatan engine dari npm.
+Vitest 5 officially requires Node 22.12+ or 24 (`nvm use 24`). Tests also run on Node 20.19, with an npm engine warning.
 
-## Produksi
+## Production
 
-`VITE_API_URL` dibaca saat build, jadi build ulang dengan URL Cloud Run needl-service (dicetak oleh `deploy/deploy.sh`):
+`VITE_API_URL` is read at build time. Rebuild with the needl-service Cloud Run URL (printed by `deploy/deploy.sh`):
 
 ```bash
 VITE_API_URL=https://needl-service-xxxxx.asia-southeast2.run.app npm run build
 ```
 
-Origin tempat UI di-host harus ada di `CORS_ORIGINS` needl-service (`deploy/env.yaml`).
+The UI hosting origin must be included in needl-service's `CORS_ORIGINS` (`deploy/env.yaml`).
 
-Dengan needl-service mode `stub`, link yang mengandung shop id `218334561` memberi contoh hasil "aman", link lain memberi contoh "risiko tinggi":
+With needl-service in `stub` mode, a link containing shop ID `218334561` returns a sample safe result; other links return a sample high-risk result:
 
-- Risiko tinggi: `https://shopee.co.id/Dermalune-10-Niacinamide-Alpha-Arbutin-Brightening-Serum-30ml-Original-i.773019284.25810442671`
-- Aman: `https://shopee.co.id/Dermalune-Niacinamide-Brightening-Serum-30ml-Official-i.218334561.24019837712`
+- High risk: `https://shopee.co.id/Dermalune-10-Niacinamide-Alpha-Arbutin-Brightening-Serum-30ml-Original-i.773019284.25810442671`
+- Safe: `https://shopee.co.id/Dermalune-Niacinamide-Brightening-Serum-30ml-Official-i.218334561.24019837712`
 
-## Alur cek
+## Check flow
 
-1. Link atau screenshot dikirim ke `POST /verification-jobs`. Error validasi tampil di bawah form.
-2. Modal "Ini produknya?" terbuka dan mem-polling job (ikut `Retry-After`). Kartu produk muncul saat job membawa `preview`.
-3. Setelah "Lanjutkan Pengecekan", log proses mengikuti `progress` job (lihat `src/data/steps.ts`).
-4. Job selesai: hasil disimpan di memori dan riwayat lokal, lalu pindah ke `/result/:verificationId`.
-5. Riwayat disegarkan dari `GET /api/v1/verifications`; membuka atau me-refresh hasil mengambil data lewat `GET /api/v1/verifications/{verification_id}`.
+1. A link or screenshot is sent to `POST /verification-jobs`. Validation errors appear below the form.
+2. The “Is this the product?” modal opens and polls the job, following `Retry-After`. The product card appears when the job includes a `preview`.
+3. After “Continue checking,” the progress log follows the job's `progress` (`src/data/steps.ts`).
+4. When the job completes, the result is kept in memory and added to local history, then the app opens `/result/:verificationId`.
+5. The homepage reads history from localStorage. Opening or refreshing a result fetches details from `GET /api/v1/verifications/{verification_id}`.
 
-Job gagal menampilkan pesan dari `error.code`. Kalau link Shopee tidak bisa diambil, modal menawarkan tab Screenshot.
+Failed jobs show a message based on `error.code`. If a Shopee link cannot be fetched, the modal offers the Screenshot tab.
 
-## Pesan error
+## Error messages
 
-Semua error dari backend dipetakan di `src/services/api/errors.ts` ke teks i18n yang singkat (apa yang terjadi, apa yang bisa dilakukan). Pengguna tidak pernah melihat `message` dari server, error code, status HTTP, atau `request_id`. Saat development, tiap request yang gagal dicatat di console browser (`[needl] request failed`) bersama `request_id` untuk dicocokkan dengan log server. Halaman yang crash saat render diganti pesan umum oleh `ErrorBoundary` di `RootLayout`. Arti tiap pesan ada di README needl-service, bagian "What the UI message means".
+Backend errors are mapped in `src/services/api/errors.ts` to short localized messages that explain what happened and what the user can do. The UI never displays the server `message`, error code, HTTP status, or `request_id`. During development, failed requests are logged in the browser console (`[needl] request failed`) with the `request_id` for matching against server logs. Render crashes show a generic message through the `ErrorBoundary` in `RootLayout`. See the needl-service README's “What the UI message means” section for each message's meaning.
 
-## Struktur folder
+## Folder structure
 
 ```
 src/
   app/          App (providers + router), routes, layout route
-  pages/        HomePage, ResultPage — menyambungkan hook ke komponen
+  pages/        HomePage, ResultPage — connect hooks to components
   components/   atomic design
-    atoms/        elemen terkecil: Button, Pill, Icon, Bottle, Toast, ...
-    molecules/    gabungan atom: LinkField, Gauge, HistoryCard, CheckItem, evidence/*, ...
-    organisms/    bagian halaman: Header, Hero, PreviewModal, VerdictCard, CheckSection, ...
-    templates/    tata letak halaman tanpa data: AppShell, HomeTemplate, ResultTemplate
-  context/      state global: preferences (tema + bahasa), toast, check (hasil + riwayat), draft (input home)
-  hooks/        hook yang dipakai lintas komponen
-  lib/          fungsi tanpa React: parseLink, gauge, severity, history, storage, ...
-  services/api/ klien needl-service: request, job, FormData screenshot, pemetaan error
-  data/         data statis UI: daftar cek, slot screenshot, langkah log proses
-  i18n/         teks EN dan ID
-  types/        tipe domain dan tipe kontrak API
-  styles/       token warna (light/dark) dan CSS dasar
+    atoms/        smallest elements: Button, Pill, Icon, Bottle, Toast, ...
+    molecules/    combined atoms: LinkField, Gauge, HistoryCard, CheckItem, evidence/*, ...
+    organisms/    page sections: Header, Hero, PreviewModal, VerdictCard, CheckSection, ...
+    templates/    data-free page layouts: AppShell, HomeTemplate, ResultTemplate
+  context/      global state: preferences (theme + language), toast, check (results + history), draft (home input)
+  hooks/        hooks shared across components
+  lib/          framework-free functions: parseLink, gauge, severity, history, storage, ...
+  services/api/ needl-service client: requests, jobs, screenshot FormData, error mapping
+  data/         static UI data: checks, screenshot slots, progress steps
+  i18n/         English and Indonesian text
+  types/        domain types and API contract types
+  styles/       color tokens (light/dark) and base CSS
 ```
 
-## Aturan UI vs logic
+## UI and logic conventions
 
-Nama komponen = nama folder. Tiap folder komponen (termasuk `pages/`) berisi:
+Component names match their folder names. Each component folder (including `pages/`) contains:
 
-| File | Isi |
+| File | Contents |
 |---|---|
-| `index.tsx` | UI saja: terima props, render JSX. Boleh pakai `usePreferences()` untuk teks. |
-| `index.css` | style komponen (nama class sama dengan prototipe `needl.html`). Tidak ada kalau komponen tidak punya style sendiri. |
-| `useNamaHook.ts` | logic komponen: state, effect, timer, animasi, event handler. Nama file = nama hook, misalnya `useGaugeAnimation.ts`. |
+| `index.tsx` | UI only: accept props and render JSX. `usePreferences()` is allowed for text. |
+| `index.css` | Component styles (class names follow the `needl.html` prototype). Omitted when there are no component-specific styles. |
+| `useNameHook.ts` | Component logic: state, effects, timers, animation, and event handlers. The filename matches the hook, for example `useGaugeAnimation.ts`. |
 
-Import cukup sampai folder: `import { Gauge } from '../../molecules/Gauge'`.
+Import components through their folder, for example: `import { Gauge } from '../../molecules/Gauge'`.
 
-Kalau ada bug:
+For bugs:
 
-- tampilan salah: buka `index.tsx` / `index.css` di folder komponennya;
-- perilaku salah (timer, animasi, klik): buka file `use*.ts` di folder yang sama;
-- hasil hitungan / validasi salah: buka `src/lib`;
-- data salah: cek respons API di tab Network, lalu `src/services/api/`.
+- Wrong appearance: check `index.tsx` / `index.css` in the component folder.
+- Wrong behavior (timer, animation, click): check the `use*.ts` file in that folder.
+- Wrong calculation or validation: check `src/lib`.
+- Wrong data: inspect the API response in the Network tab, then check `src/services/api/`.
 
-## Penyimpanan lokal
+## Local storage
 
-`localStorage` dipakai untuk `needl-theme`, `needl-lang`, dan `needl-history`. Hapus key tersebut untuk reset.
+`localStorage` stores `needl-theme`, `needl-lang`, and `needl-search-history`. Remove these keys to reset local preferences and search history.

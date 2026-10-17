@@ -1,7 +1,7 @@
 export const STORAGE_KEYS = {
   theme: 'needl-theme',
   lang: 'needl-lang',
-  history: 'needl-history',
+  history: 'needl-search-history',
 } as const
 
 // localStorage can throw (private mode, blocked site data), so every access is guarded.
