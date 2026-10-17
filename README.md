@@ -28,15 +28,27 @@ needl-service harus mengizinkan origin UI di `CORS_ORIGINS` (default sudah `http
 
 Vitest 5 resminya butuh Node 22.12+ atau 24 (`nvm use 24`); di Node 20.19 tesnya juga jalan, dengan peringatan engine dari npm.
 
-## Produksi
+## Produksi (Cloud Run)
 
-`VITE_API_URL` dibaca saat build, jadi build ulang dengan URL Cloud Run needl-service (dicetak oleh `deploy/deploy.sh`):
+`Dockerfile` mem-build app dengan Vite, lalu menyajikan `dist/` lewat nginx (non-root) di `$PORT`. Route seperti `/result/...` dan `/history/...` dijawab dengan `index.html`. File di `/assets` di-cache setahun, `index.html` tidak di-cache.
+
+`VITE_API_URL` dibaca saat build dari `.env.production` (URL publik needl-service, ikut masuk ke bundle JS). File `.env` lokal tidak ikut ke image.
 
 ```bash
-VITE_API_URL=https://needl-service-xxxxx.asia-southeast2.run.app npm run build
+gcloud run deploy needl-ui --source . \
+  --project needl-prod --region asia-southeast2 \
+  --allow-unauthenticated --cpu 1 --memory 256Mi --min-instances 0 --max-instances 3
 ```
 
-Origin tempat UI di-host harus ada di `CORS_ORIGINS` needl-service (`deploy/env.yaml`).
+Setelah deploy pertama, tambahkan URL needl-ui ke `CORS_ORIGINS` needl-service (GitHub repository variable `CORS_ORIGINS` untuk CI/CD, dan `deploy/env.yaml` untuk deploy manual), lalu deploy ulang service.
+
+Build untuk backend lain: `docker build --build-arg VITE_API_URL=https://... -t needl-ui .`
+
+Cek image di lokal:
+
+```bash
+docker build -t needl-ui . && docker run --rm -p 8080:8080 needl-ui   # http://localhost:8080
+```
 
 Dengan needl-service mode `stub`, link yang mengandung shop id `218334561` memberi contoh hasil "aman", link lain memberi contoh "risiko tinggi":
 

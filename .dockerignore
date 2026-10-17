@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.agents
+.vscode
+.idea
+.DS_Store
+*.log
+*.local
+# Local env files stay out of the image; .env.production holds the production API URL.
+.env
+.env.*
+!.env.production

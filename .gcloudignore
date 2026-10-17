@@ -1,0 +1,12 @@
+# Not uploaded by `gcloud run deploy --source .` (the upload goes to a Cloud Build bucket).
+.git/
+node_modules/
+dist/
+.agents/
+.vscode/
+.idea/
+.DS_Store
+*.log
+*.local
+.env
+.env.example

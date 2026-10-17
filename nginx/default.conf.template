@@ -1,0 +1,27 @@
+# Rendered by the nginx image at startup: ${PORT} is replaced; nginx variables ($uri) are left alone.
+server {
+    listen ${PORT};
+    server_name _;
+    root /usr/share/nginx/html;
+    server_tokens off;
+
+    gzip on;
+    gzip_min_length 1024;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # Vite puts content-hashed files in /assets: cache them for a year. A missing file is a 404,
+    # not index.html, so a stale tab never runs HTML as JavaScript.
+    location /assets/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+
+    # Client-side routes (/result/..., /history/...) get index.html. It is never cached,
+    # so a new deploy shows up on the next load.
+    location / {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-cache" always;
+        try_files $uri $uri/ /index.html;
+    }
+}
