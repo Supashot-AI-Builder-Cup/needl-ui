@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
-import { addHistoryEntry, historyEntryFrom, sanitizeHistory } from '../../lib/history'
+import { addHistoryEntry, historyEntryFrom, historyEntryFromItem, sanitizeHistory } from '../../lib/history'
 import { readJSON, STORAGE_KEYS, writeStorage } from '../../lib/storage'
 import type { VerificationHistoryItem, VerificationResult } from '../../types/api'
 import type { HistoryEntry } from '../../types/domain'
@@ -17,15 +17,7 @@ export function CheckProvider({ children }: { children: ReactNode }) {
   const [historyCursor, setHistoryCursor] = useState<string | null>(null)
   const [loadingMoreHistory, setLoadingMoreHistory] = useState(false)
 
-  const mapHistory = (items: VerificationHistoryItem[]): HistoryEntry[] =>
-    items.map((item) => ({
-      verificationId: item.id,
-      name: item.name,
-      price: item.price,
-      score: item.score,
-      verdict: item.verdict,
-      checkedAt: item.checked_at,
-    }))
+  const mapHistory = (items: VerificationHistoryItem[]): HistoryEntry[] => items.map(historyEntryFromItem)
 
   const getResult = useCallback((verificationId: string) => results[verificationId], [results])
 

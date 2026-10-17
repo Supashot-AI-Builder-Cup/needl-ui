@@ -89,6 +89,8 @@ export interface VerificationHistoryItem {
   source_url: string | null
   name: string
   price: string
+  /** Main product photo URL; null when unknown (screenshot checks, older servers). */
+  image?: string | null
   store_name: string | null
   trust_score: number
   risk_level: RiskLevel
