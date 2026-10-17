@@ -63,7 +63,7 @@ export const en = {
   pass: 'Passed',
   secStore: 'Store',
   secListing: 'Listing',
-  secReviews: 'Reviews',
+  secReviews: 'Suspicious Reviews',
   secSafer: 'Safer stores',
   secAsk: 'Ask the seller',
   askLede: 'Send in Shopee chat before you pay.',

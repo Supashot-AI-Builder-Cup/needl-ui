@@ -65,7 +65,7 @@ export const id: Dictionary = {
   pass: 'Aman',
   secStore: 'Toko',
   secListing: 'Listing',
-  secReviews: 'Ulasan',
+  secReviews: 'Ulasan Mencurigakan',
   secSafer: 'Toko lebih aman',
   secAsk: 'Tanya penjual',
   askLede: 'Kirim lewat chat Shopee sebelum bayar.',
