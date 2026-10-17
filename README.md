@@ -37,6 +37,8 @@ VITE_API_URL=https://needl-service-xxxxx.asia-southeast2.run.app npm run build
 
 The UI hosting origin must be included in needl-service's `CORS_ORIGINS` (`deploy/env.yaml`).
 
+For step-by-step frontend CI/CD deployment to Cloud Run, see [docs/CI-CD.md](docs/CI-CD.md).
+
 With needl-service in `stub` mode, a link containing shop ID `218334561` returns a sample safe result; other links return a sample high-risk result:
 
 - High risk: `https://shopee.co.id/Dermalune-10-Niacinamide-Alpha-Arbutin-Brightening-Serum-30ml-Original-i.773019284.25810442671`
