@@ -5,21 +5,23 @@ import './index.css'
 interface PhotoPairProps {
   listingCaption: string
   buyerCaption: string
+  listingImage?: string | null
+  buyerImage?: string | null
   buyerVariant?: BottleVariant
   /** Differences spotted between the two photos. */
   diffs?: string[]
 }
 
-export function PhotoPair({ listingCaption, buyerCaption, buyerVariant, diffs }: PhotoPairProps) {
+export function PhotoPair({ listingCaption, buyerCaption, listingImage, buyerImage, buyerVariant, diffs }: PhotoPairProps) {
   return (
     <>
       <div className="pair">
         <figure>
-          <ProductTile />
+          <ProductTile src={listingImage} alt={listingCaption} />
           <figcaption>{listingCaption}</figcaption>
         </figure>
         <figure>
-          <ProductTile variant={buyerVariant} />
+          <ProductTile src={buyerImage} alt={buyerCaption} variant={buyerVariant} />
           <figcaption>{buyerCaption}</figcaption>
         </figure>
       </div>

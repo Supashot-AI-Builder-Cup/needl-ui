@@ -3,7 +3,8 @@ import type { Severity, Step } from '../types/domain'
 
 export type StepOutcome =
   | { kind: 'severity'; severity: Severity }
-  | { kind: 'stores'; count: number }
+  | { kind: 'skipped' }
+  | { kind: 'stores'; count: number; official: boolean }
   | { kind: 'questions'; count: number }
 
 /** What a checking-log line shows once the result is known. Null when it has nothing to show. */
@@ -13,10 +14,11 @@ export function stepOutcome(step: Step, result: VerificationResult | null): Step
     case 'check': {
       const code = step.result.code
       const check = result.checks.find((c) => c.code === code)
-      return check ? { kind: 'severity', severity: check.severity } : null
+      // A check the server left out had no data to work with (e.g. no buyer photos).
+      return check ? { kind: 'severity', severity: check.severity } : { kind: 'skipped' }
     }
     case 'stores':
-      return { kind: 'stores', count: result.stores.length }
+      return { kind: 'stores', count: result.stores.length, official: result.product.mall }
     case 'questions':
       return { kind: 'questions', count: result.questions.length }
   }

@@ -1,14 +1,13 @@
-import { arcPath, GAUGE_SEGMENTS, needleAngle } from '../../../lib/gauge'
-import type { Verdict } from '../../../types/domain'
+import { arcPath, GAUGE_SEGMENTS, needleAngle, type GaugeZone } from '../../../lib/gauge'
 import './index.css'
 
 interface MiniGaugeProps {
   score: number
-  verdict: Verdict
+  zone: GaugeZone
 }
 
 /** Small static gauge used in history cards. */
-export function MiniGauge({ score, verdict }: MiniGaugeProps) {
+export function MiniGauge({ score, zone }: MiniGaugeProps) {
   return (
     <svg className="mgauge" viewBox="0 9 200 107" aria-hidden="true">
       {GAUGE_SEGMENTS.map((seg) => (
@@ -19,7 +18,7 @@ export function MiniGauge({ score, verdict }: MiniGaugeProps) {
           stroke={seg.color}
           strokeWidth="18"
           strokeLinecap="round"
-          opacity={seg.zone === verdict ? 1 : 0.22}
+          opacity={seg.zone === zone ? 1 : 0.22}
         />
       ))}
       <g transform={`rotate(${needleAngle(score)} 100 104)`}>

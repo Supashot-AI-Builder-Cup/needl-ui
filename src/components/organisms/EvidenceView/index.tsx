@@ -27,6 +27,13 @@ export function EvidenceView({ evidence }: { evidence: Evidence[] }) {
 function EvidenceBody({ evidence: ev }: { evidence: Evidence }) {
   const { t, pick } = usePreferences()
   switch (ev.kind) {
+    case 'facts':
+      return (
+        <>
+          {ev.caption && <p className="ev-cap">{pick(ev.caption)}</p>}
+          <FactsList facts={ev.facts} />
+        </>
+      )
     case 'nameCompare':
       return (
         <>
@@ -70,7 +77,9 @@ function EvidenceBody({ evidence: ev }: { evidence: Evidence }) {
           <PhotoPair
             listingCaption={pick(ev.listingCaption)}
             buyerCaption={pick(ev.buyerCaption)}
-            buyerVariant={ev.buyerVariant}
+            listingImage={ev.listingImage}
+            buyerImage={ev.buyerImage}
+            buyerVariant={ev.buyerVariant ?? undefined}
             diffs={ev.diffs?.map(pick)}
           />
           {ev.facts && <FactsList facts={ev.facts} />}

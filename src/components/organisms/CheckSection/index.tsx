@@ -30,24 +30,38 @@ export function CheckSection({ title, icon, group, open, onToggle, openChecks, o
 
   return (
     <SectionCard className={cx(open && 'is-open')}>
-      <button type="button" className="shead" aria-expanded={open} aria-controls={bodyId} onClick={onToggle}>
+      <button
+        type="button"
+        className="shead"
+        aria-expanded={open}
+        aria-controls={bodyId}
+        onClick={onToggle}
+        disabled={total === 0}
+      >
         <span className="sic">
           <Icon name={icon} />
         </span>
         <span className="stitle">
           <span className="sname">{title}</span>
           <span className="smeta">
-            <span className="ssub">
-              {total} {total === 1 ? t('check') : t('checks')}
-            </span>
-            {flagged ? (
-              <SeverityCounts counts={group.counts} severities={FLAG_SEVERITIES} />
+            {total === 0 ? (
+              // No check could run here (e.g. no reviews fetched); do not call it safe.
+              <span className="ssub">{t('notEnoughData')}</span>
             ) : (
-              <Pill tone="pass">{t('pass')}</Pill>
+              <>
+                <span className="ssub">
+                  {total} {total === 1 ? t('check') : t('checks')}
+                </span>
+                {flagged ? (
+                  <SeverityCounts counts={group.counts} severities={FLAG_SEVERITIES} />
+                ) : (
+                  <Pill tone="pass">{t('pass')}</Pill>
+                )}
+              </>
             )}
           </span>
         </span>
-        <Icon name="chevronDown" className="schev" strokeWidth={1.9} />
+        {total > 0 && <Icon name="chevronDown" className="schev" strokeWidth={1.9} />}
       </button>
       <div className="sbody" id={bodyId} hidden={!open}>
         {group.checks.map((check) => (

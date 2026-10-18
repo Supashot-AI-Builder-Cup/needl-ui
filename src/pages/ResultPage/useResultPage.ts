@@ -4,8 +4,9 @@ import type { IconName } from '../../components/atoms/Icon'
 import { useCheck } from '../../context/check/useCheck'
 import { usePreferences } from '../../context/preferences/usePreferences'
 import { useClipboard } from '../../hooks/useClipboard'
-import type { TextKey } from '../../i18n'
+import { format, type TextKey } from '../../i18n'
 import { groupChecks } from '../../lib/checks'
+import { ZONE_LOOK, zoneForScore } from '../../lib/gauge'
 import { countBySeverity, FLAG_SEVERITIES } from '../../lib/severity'
 import { buildShareText } from '../../lib/shareText'
 import { isNotFound, jobErrorText, requestErrorText } from '../../services/api/errors'
@@ -13,16 +14,23 @@ import type { SectionKey } from '../../types/domain'
 import { useVerification } from '../../hooks/useVerification'
 import { useVerificationJob } from '../../hooks/useVerificationJob'
 
-const SECTION_META: Record<SectionKey, { title: TextKey; icon: IconName }> = {
-  store: { title: 'secStore', icon: 'store' },
-  listing: { title: 'secListing', icon: 'listing' },
-  reviews: { title: 'secReviews', icon: 'reviews' },
+const SECTION_META: Record<SectionKey, { title: TextKey; short: TextKey; icon: IconName }> = {
+  store: { title: 'secStore', short: 'secStoreShort', icon: 'store' },
+  listing: { title: 'secListing', short: 'secListingShort', icon: 'listing' },
+  reviews: { title: 'secReviews', short: 'secReviewsShort', icon: 'reviews' },
+}
+
+/** The screenshot that fills each section, for the "add screenshots" hint. */
+const SECTION_SHOT: Record<SectionKey, TextKey> = {
+  store: 'shotStore',
+  listing: 'shotDesc',
+  reviews: 'shotReviews',
 }
 
 export function useResultPage() {
   const { jobId = '', verificationId = '' } = useParams()
   const { getResult } = useCheck()
-  const { t, pick } = usePreferences()
+  const { t, pick, lang } = usePreferences()
   const { copy } = useClipboard()
   const navigate = useNavigate()
   const [openSections, setOpenSections] = useState<Partial<Record<SectionKey, boolean>>>({})
@@ -59,6 +67,18 @@ export function useResultPage() {
     }))
     : []
 
+  // Sections with no check: the score counts them as risk, so say what is missing.
+  const unchecked = sections.filter((s) => s.group.checks.length === 0)
+  const list = (items: string[]) => new Intl.ListFormat(lang, { type: 'conjunction' }).format(items)
+  let uncheckedNote: string | null = null
+  if (result && unchecked.length) {
+    uncheckedNote = format(t('vUnchecked'), { sections: list(unchecked.map((s) => t(SECTION_META[s.group.section].short))) })
+    if (result.source.kind === 'screenshots') {
+      const shots = list(unchecked.map((s) => t(SECTION_SHOT[s.group.section])))
+      uncheckedNote += ` ${format(t('vAddShots'), { shots })}`
+    }
+  }
+
   const toggleSection = (key: SectionKey) => setOpenSections((s) => ({ ...s, [key]: !s[key] }))
   const toggleCheck = (index: number) => setOpenChecks((s) => ({ ...s, [index]: !s[index] }))
   const goHome = () => navigate('/')
@@ -67,7 +87,7 @@ export function useResultPage() {
     if (!result) return
     const text = buildShareText({
       name: result.displayName,
-      verdict: result.product.verdict === 'high' ? t('high') : t('safe'),
+      verdict: t(ZONE_LOOK[zoneForScore(result.product.score)].word),
       score: result.product.score,
       counts: FLAG_SEVERITIES.filter((k) => counts[k]).map((k) => `${counts[k]} ${t(k)}`),
       link: result.source.url,
@@ -95,6 +115,7 @@ export function useResultPage() {
     result,
     counts,
     sections,
+    uncheckedNote,
     questions: result ? result.questions.map(pick) : [],
     openSections,
     openChecks,

@@ -19,8 +19,10 @@ export function ProcessLog({ steps, shown, result }: ProcessLogProps) {
 
   const text = (outcome: StepOutcome): string => {
     if (outcome.kind === 'severity') return t(outcome.severity)
+    if (outcome.kind === 'skipped') return t('notEnoughData')
     if (outcome.kind === 'stores') {
-      return outcome.count ? format(t('storesFound'), { n: outcome.count }) : t('alreadyOfficial')
+      if (outcome.count) return format(t('storesFound'), { n: outcome.count })
+      return outcome.official ? t('alreadyOfficial') : t('noSuggestions')
     }
     return format(t('questionsReady'), { n: outcome.count })
   }
@@ -35,7 +37,7 @@ export function ProcessLog({ steps, shown, result }: ProcessLogProps) {
             index={i}
             label={pick(step.label)}
             result={outcome ? text(outcome) : ''}
-            severity={outcome ? (outcome.kind === 'severity' ? outcome.severity : 'pass') : undefined}
+            severity={!outcome || outcome.kind === 'skipped' ? undefined : outcome.kind === 'severity' ? outcome.severity : 'pass'}
             status={i < shown ? 'done' : i === shown ? 'running' : 'pending'}
           />
         )

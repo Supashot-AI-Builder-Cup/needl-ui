@@ -75,6 +75,7 @@ export interface ComplaintRow {
 
 /** One evidence card shown under a check. */
 export type Evidence =
+  | { kind: 'facts'; caption?: LocalText; facts: Fact[] }
   | { kind: 'nameCompare'; caption?: LocalText; official: string; store: string; facts: Fact[] }
   | { kind: 'description'; caption: LocalText; segments: TextSegment[]; terms?: Term[] }
   | { kind: 'claims'; claims: Claim[] }
@@ -84,6 +85,9 @@ export type Evidence =
       kind: 'photoPair'
       listingCaption: LocalText
       buyerCaption: LocalText
+      /** Real photo URLs; without them the illustration is drawn. */
+      listingImage?: string | null
+      buyerImage?: string | null
       buyerVariant?: BottleVariant
       diffs?: LocalText[]
       facts?: Fact[]

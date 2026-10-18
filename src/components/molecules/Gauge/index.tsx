@@ -1,21 +1,20 @@
-import { arcPath, GAUGE_SEGMENTS, needleAngle } from '../../../lib/gauge'
-import type { Verdict } from '../../../types/domain'
+import { arcPath, GAUGE_SEGMENTS, needleAngle, type GaugeZone } from '../../../lib/gauge'
 import { useGaugeAnimation } from './useGaugeAnimation'
 import './index.css'
 
 interface GaugeProps {
   score: number
-  verdict: Verdict
+  zone: GaugeZone
   label: string
 }
 
 /** Large risk gauge with an animated needle. */
-export function Gauge({ score, verdict, label }: GaugeProps) {
+export function Gauge({ score, zone, label }: GaugeProps) {
   const ref = useGaugeAnimation(score)
   return (
     <svg ref={ref} className="gauge" viewBox="0 0 200 116" role="img" aria-label={label}>
       {GAUGE_SEGMENTS.map((seg) => {
-        const on = seg.zone === verdict
+        const on = seg.zone === zone
         return (
           <path
             key={seg.zone}

@@ -1,5 +1,7 @@
 import { usePreferences } from '../../../context/preferences/usePreferences'
+import { ZONE_LOOK, zoneForScore } from '../../../lib/gauge'
 import type { SeverityCounts as Counts } from '../../../lib/severity'
+import { verdictSummary } from '../../../lib/verdict'
 import type { Product } from '../../../types/domain'
 import { Button } from '../../atoms/Button'
 import { ProductTile } from '../../atoms/ProductTile'
@@ -11,14 +13,17 @@ import './index.css'
 interface VerdictCardProps {
   productView: { product: Product; displayName: string }
   counts: Counts
+  /** Which sections were not checked, when some were not. */
+  uncheckedNote?: string | null
   onCheckAnother: () => void
 }
 
-export function VerdictCard({ productView, counts, onCheckAnother }: VerdictCardProps) {
+export function VerdictCard({ productView, counts, uncheckedNote, onCheckAnother }: VerdictCardProps) {
   const { t } = usePreferences()
   const { product, displayName } = productView
   const { displayScore, wordRef } = useVerdictReveal(product.score)
-  const high = product.verdict === 'high'
+  const zone = zoneForScore(product.score)
+  const look = ZONE_LOOK[zone]
 
   return (
     <div className="verdict">
@@ -33,14 +38,15 @@ export function VerdictCard({ productView, counts, onCheckAnother }: VerdictCard
           </div>
         </div>
       </div>
-      <Gauge score={product.score} verdict={product.verdict} label={`${t('score')} ${product.score} ${t('of')}`} />
-      <div className="vword" ref={wordRef} style={{ color: high ? 'var(--crit)' : 'var(--pass)' }}>
-        {high ? t('high') : t('safe')}
+      <Gauge score={product.score} zone={zone} label={`${t('score')} ${product.score} ${t('of')}`} />
+      <div className="vword" ref={wordRef} style={{ color: look.color }}>
+        {t(look.word)}
       </div>
       <div className="vscore">
         {t('score')} <span>{displayScore}</span> {t('of')}
       </div>
-      <p className="vsum">{high ? t('vsumHigh') : t('vsumSafe')}</p>
+      <p className="vsum">{t(verdictSummary(zone, counts, !!uncheckedNote))}</p>
+      {uncheckedNote && <p className="vnote">{uncheckedNote}</p>}
       <div className="counts">
         <SeverityCounts counts={counts} />
       </div>

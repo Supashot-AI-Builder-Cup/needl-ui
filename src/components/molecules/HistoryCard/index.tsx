@@ -1,4 +1,5 @@
 import { usePreferences } from '../../../context/preferences/usePreferences'
+import { ZONE_LOOK, zoneForScore } from '../../../lib/gauge'
 import type { Verdict } from '../../../types/domain'
 import { Icon } from '../../atoms/Icon'
 import { Pill } from '../../atoms/Pill'
@@ -19,9 +20,9 @@ interface HistoryCardProps extends HistoryCardData {
   onOpen: () => void
 }
 
-export function HistoryCard({ name, image, price, score, verdict, onOpen }: HistoryCardProps) {
+export function HistoryCard({ name, image, price, score, onOpen }: HistoryCardProps) {
   const { t } = usePreferences()
-  const high = verdict === 'high'
+  const zone = zoneForScore(score)
   return (
     <li
       className="hcard"
@@ -44,8 +45,8 @@ export function HistoryCard({ name, image, price, score, verdict, onOpen }: Hist
           <Tag variant="soft">Shopee</Tag>
         </div>
         <div className="hscore">
-          <MiniGauge score={score} verdict={verdict} />
-          <Pill tone={high ? 'critical' : 'pass'}>{high ? t('high') : t('safe')}</Pill>
+          <MiniGauge score={score} zone={zone} />
+          <Pill tone={ZONE_LOOK[zone].tone}>{t(ZONE_LOOK[zone].word)}</Pill>
           <span className="hnum">
             {score}
             <small>/100</small>

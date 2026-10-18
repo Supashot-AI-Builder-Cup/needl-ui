@@ -60,9 +60,13 @@ export const en = {
   major: 'Major',
   minor: 'Minor',
   pass: 'Passed',
-  secStore: 'Store',
-  secListing: 'Listing',
-  secReviews: 'Suspicious Reviews',
+  secStore: 'Store verification',
+  secListing: 'Listing verification',
+  secReviews: 'Review verification',
+  // Section names inside a sentence ("Not verified: listing and reviews").
+  secStoreShort: 'store',
+  secListingShort: 'listing',
+  secReviewsShort: 'reviews',
   secSafer: 'Safer stores',
   secAsk: 'Ask the seller',
   askLede: 'Send in Shopee chat before you pay.',
@@ -78,7 +82,7 @@ export const en = {
   thisStore: 'This store',
   reviewsPerDay: 'Reviews per day',
   vsumHigh: 'Likely fake or repacked. Buy from the official store.',
-  vsumSafe: 'No serious risks. Official Shopee Mall store.',
+  vsumSafe: 'No warning signs in the store, listing, or reviews.',
   saferLedeRisky: 'Buy from the official store. If it’s out of stock, try these.',
   saferLedeSafe: 'You’re already on the official store.',
 
@@ -116,6 +120,17 @@ export const en = {
   storesFound: '{n} found',
   alreadyOfficial: 'Already official',
   questionsReady: '{n} ready',
+  notEnoughData: 'Not enough data',
+  noSuggestions: 'No suggestions yet',
+  careful: 'Careful',
+  vsumCareful: 'Some warning signs. Check the evidence and ask the seller before you buy.',
+  vsumIncomplete: 'No warning signs so far, but there isn’t enough data to call it safe.',
+  vUnchecked: 'Not verified: {sections}.',
+  vAddShots: 'Add screenshots of the {shots}, then check again.',
+  shotStore: 'store header',
+  shotDesc: 'description',
+  shotReviews: 'reviews',
+  saferLedeNone: 'No store suggestions yet. Look for the brand’s official store with the Shopee Mall badge.',
 }
 
 export type Dictionary = typeof en

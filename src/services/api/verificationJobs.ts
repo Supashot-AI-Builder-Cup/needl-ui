@@ -8,7 +8,7 @@ import type {
   VerificationResponse,
   VerificationResult,
 } from '../../types/api'
-import { request } from './client'
+import { API_BASE, request } from './client'
 
 const JOBS = '/api/v1/verification-jobs'
 
@@ -38,7 +38,33 @@ export async function createScreenshotJob(form: FormData): Promise<VerificationJ
 
 export async function getJob(jobId: string): Promise<{ job: VerificationJob; retryAfter: number | null }> {
   const { body, retryAfter } = await request<VerificationJobResponse>(`${JOBS}/${encodeURIComponent(jobId)}`)
-  return { job: body.data, retryAfter }
+  return { job: withAbsoluteImages(body.data), retryAfter }
+}
+
+/** Photos cropped from screenshots come as API paths ("/api/v1/..."); make them full URLs. */
+function absolute(url: string | null | undefined): string | null {
+  if (!url) return null
+  return url.startsWith('/') ? `${API_BASE}${url}` : url
+}
+
+function withAbsoluteImages(job: VerificationJob): VerificationJob {
+  const preview = job.preview && {
+    ...job.preview,
+    product: { ...job.preview.product, image: absolute(job.preview.product.image) },
+  }
+  const verification = job.verification && {
+    ...job.verification,
+    product: { ...job.verification.product, image: absolute(job.verification.product.image) },
+    checks: job.verification.checks.map((check) => ({
+      ...check,
+      evidence: check.evidence.map((ev) =>
+        ev.kind === 'photoPair'
+          ? { ...ev, listingImage: absolute(ev.listingImage), buyerImage: absolute(ev.buyerImage) }
+          : ev,
+      ),
+    })),
+  }
+  return { ...job, preview, verification }
 }
 
 export async function getVerification(verificationId: string): Promise<VerificationResult> {

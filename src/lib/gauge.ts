@@ -1,4 +1,5 @@
-import type { Verdict } from '../types/domain'
+import type { TextKey } from '../i18n'
+import type { Severity, Verdict } from '../types/domain'
 
 // Gauge geometry in a 200-wide viewBox. Degrees run 0 (left) to 180 (right).
 export const GAUGE_RADIUS = 84
@@ -19,6 +20,20 @@ export const GAUGE_SEGMENTS: GaugeSegment[] = [
   { from: 61, to: 119, color: 'var(--major)', zone: 'careful' },
   { from: 122, to: 180, color: 'var(--crit)', zone: 'high' },
 ]
+
+/** Zone of a 0-100 risk score; the same bounds as the server's risk levels. */
+export function zoneForScore(score: number): GaugeZone {
+  if (score >= 67) return 'high'
+  if (score >= 33) return 'careful'
+  return 'safe'
+}
+
+/** Words, pill tone and color for each zone. */
+export const ZONE_LOOK: Record<GaugeZone, { word: TextKey; summary: TextKey; tone: Severity; color: string }> = {
+  safe: { word: 'safe', summary: 'vsumSafe', tone: 'pass', color: 'var(--pass)' },
+  careful: { word: 'careful', summary: 'vsumCareful', tone: 'major', color: 'var(--tm)' },
+  high: { word: 'high', summary: 'vsumHigh', tone: 'critical', color: 'var(--crit)' },
+}
 
 /** Needle reveal timing, shared by the gauge and the verdict text. */
 export const GAUGE_TIMING = { duration: 1700, delay: 300 }

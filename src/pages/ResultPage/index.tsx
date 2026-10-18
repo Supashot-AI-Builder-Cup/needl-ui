@@ -56,7 +56,12 @@ export function ResultPage() {
       }
       aside={
         <>
-          <VerdictCard productView={page.result} counts={page.counts} onCheckAnother={page.goHome} />
+          <VerdictCard
+            productView={page.result}
+            counts={page.counts}
+            uncheckedNote={page.uncheckedNote}
+            onCheckAnother={page.goHome}
+          />
           <Disclaimer text={t('disc')} />
         </>
       }
@@ -73,7 +78,7 @@ export function ResultPage() {
           onToggleCheck={page.toggleCheck}
         />
       ))}
-      <SaferStores stores={page.result.stores} />
+      <SaferStores stores={page.result.stores} official={page.result.product.mall} />
       <SellerQuestions questions={page.questions} onCopy={page.copyQuestion} />
     </ResultTemplate>
   )
