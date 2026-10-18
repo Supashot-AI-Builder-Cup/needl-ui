@@ -8,7 +8,7 @@ import { format, type TextKey } from '../../i18n'
 import { groupChecks } from '../../lib/checks'
 import { ZONE_LOOK, zoneForScore } from '../../lib/gauge'
 import { countBySeverity, FLAG_SEVERITIES } from '../../lib/severity'
-import { buildShareText } from '../../lib/shareText'
+import { buildShareText, resultUrl } from '../../lib/shareText'
 import { isNotFound, jobErrorText, requestErrorText } from '../../services/api/errors'
 import type { SectionKey } from '../../types/domain'
 import { useVerification } from '../../hooks/useVerification'
@@ -85,23 +85,24 @@ export function useResultPage() {
 
   const share = async () => {
     if (!result) return
-    const text = buildShareText({
+    const url = resultUrl(window.location.origin, result.id)
+    const summary = {
       name: result.displayName,
       verdict: t(ZONE_LOOK[zoneForScore(result.product.score)].word),
       score: result.product.score,
       counts: FLAG_SEVERITIES.filter((k) => counts[k]).map((k) => `${counts[k]} ${t(k)}`),
-      link: result.source.url,
-    })
+    }
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'needl', text })
+        // The share sheet adds the link itself, so it is not repeated in the text.
+        await navigator.share({ title: 'needl', text: buildShareText({ ...summary, link: null }), url })
         return
       }
     } catch (e) {
       // User closed the share sheet: nothing else to do.
       if (e instanceof Error && e.name === 'AbortError') return
     }
-    await copy(text, t('shared'))
+    await copy(buildShareText({ ...summary, link: url }), t('shared'))
   }
 
   const copyQuestion = (index: number) => {

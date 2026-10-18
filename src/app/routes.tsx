@@ -11,6 +11,8 @@ export function AppRoutes() {
         <Route path="result" element={<ResultPage />} />
         <Route path="result/:jobId" element={<ResultPage />} />
         <Route path="history/:verificationId" element={<ResultPage />} />
+        {/* Link from the Share button: opens a finished check for anyone. */}
+        <Route path="check/:verificationId" element={<ResultPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -61,6 +61,7 @@ With needl-service in `stub` mode, a link containing shop ID `218334561` returns
 3. After “Continue checking,” the progress log follows the job's `progress` (`src/data/steps.ts`).
 4. When the job completes, the result is kept in memory and added to local history, then the app opens `/result/:verificationId`.
 5. The homepage reads history from localStorage. Opening or refreshing a result fetches details from `GET /api/v1/verifications/{verification_id}`.
+6. **Share** on the result page sends a public link, `/check/:verificationId`. Anyone who opens it sees the same result (read from `GET /api/v1/verifications/{verification_id}`); the Shopee link is not shared.
 
 Failed jobs show a message based on `error.code`. If a Shopee link cannot be fetched, the modal offers the Screenshot tab.
 
