@@ -8,12 +8,9 @@ import './index.css'
 interface HistoryListProps {
   items: HistoryCardData[]
   onOpen: (index: number) => void
-  hasMore?: boolean
-  loadingMore?: boolean
-  onLoadMore?: () => void
 }
 
-export function HistoryList({ items, onOpen, hasMore = false, loadingMore = false, onLoadMore }: HistoryListProps) {
+export function HistoryList({ items, onOpen }: HistoryListProps) {
   const { t } = usePreferences()
   const { expanded, toggle, visible, hiddenCount } = useHistoryList(items)
   if (!items.length) return null
@@ -25,18 +22,16 @@ export function HistoryList({ items, onOpen, hasMore = false, loadingMore = fals
           <HistoryCard key={i} {...item} onOpen={() => onOpen(i)} />
         ))}
       </ul>
-      {(hiddenCount > 0 || hasMore) && (
+      {hiddenCount > 0 && (
         <Button
           className="hmore"
           aria-expanded={expanded}
-          disabled={loadingMore}
           onClick={() => {
             if (!expanded) toggle()
-            if (hasMore) onLoadMore?.()
-            else if (expanded) toggle()
+            else toggle()
           }}
         >
-          {expanded && !hasMore ? t('seeLess') : `${t('seeMore')}${hiddenCount ? ` (${hiddenCount})` : ''}`}
+          {expanded ? t('seeLess') : `${t('seeMore')} (${hiddenCount})`}
           <Icon name="chevronDown" strokeWidth={1.9} />
         </Button>
       )}

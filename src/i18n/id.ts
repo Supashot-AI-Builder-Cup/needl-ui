@@ -22,7 +22,6 @@ export const id: Dictionary = {
   pasteDenied: 'Tempel diblokir. Tekan lama kolom, lalu pilih Tempel.',
   whatChecks: 'Yang dicek needl',
   history: 'Riwayat',
-  historyError: 'Riwayat gagal dimuat. Menampilkan hasil yang tersimpan di perangkat ini.',
   retry: 'Coba Lagi',
   seeDetails: 'Lihat Detail',
   copy: 'Salin',

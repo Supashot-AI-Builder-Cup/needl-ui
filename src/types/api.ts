@@ -83,28 +83,6 @@ export interface VerificationJobResponse {
   meta: { request_id: string }
 }
 
-export interface VerificationHistoryItem {
-  id: string
-  source_kind: 'url' | 'screenshots'
-  source_url: string | null
-  name: string
-  price: string
-  /** Main product photo URL; null when unknown (screenshot checks, older servers). */
-  image?: string | null
-  store_name: string | null
-  trust_score: number
-  risk_level: RiskLevel
-  score: number
-  verdict: 'high' | 'safe'
-  finding_count: number
-  checked_at: string
-}
-
-export interface VerificationHistoryResponse {
-  data: VerificationHistoryItem[]
-  meta: { request_id: string; next_cursor: string | null }
-}
-
 export interface VerificationResponse {
   data: VerificationResult
   meta: { request_id: string }

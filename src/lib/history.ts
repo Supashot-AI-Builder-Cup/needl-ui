@@ -1,4 +1,4 @@
-import type { VerificationHistoryItem, VerificationResult } from '../types/api'
+import type { VerificationResult } from '../types/api'
 import type { HistoryEntry } from '../types/domain'
 
 const MAX_ENTRIES = 30
@@ -31,19 +31,6 @@ export function historyEntryFrom(result: VerificationResult): HistoryEntry {
     score: result.product.score,
     verdict: result.product.verdict,
     checkedAt: result.checked_at,
-  }
-}
-
-/** One item of `GET /api/v1/verifications` as a history entry. */
-export function historyEntryFromItem(item: VerificationHistoryItem): HistoryEntry {
-  return {
-    verificationId: item.id,
-    name: item.name,
-    image: item.image ?? null,
-    price: item.price,
-    score: item.score,
-    verdict: item.verdict,
-    checkedAt: item.checked_at,
   }
 }
 

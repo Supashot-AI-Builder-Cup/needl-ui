@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useCheck } from '../../context/check/useCheck'
 import { useDraft } from '../../context/draft/useDraft'
@@ -17,14 +17,10 @@ interface ActiveJob {
 
 export function useHomePage() {
   const { tab, setTab, uploads, extras } = useDraft()
-  const { history, saveResult, refreshHistory, historyError, hasMoreHistory, loadingMoreHistory, loadMoreHistory } = useCheck()
+  const { history, saveResult } = useCheck()
   const { lang } = usePreferences()
   const navigate = useNavigate()
   const [active, setActive] = useState<ActiveJob | null>(null)
-
-  useEffect(() => {
-    void refreshHistory().catch(() => {})
-  }, [refreshHistory])
 
   const submitLink = async (url: string): Promise<TextKey | null> => {
     try {
@@ -68,10 +64,5 @@ export function useHomePage() {
     switchToScreenshots,
     openHistory: (index: number) => navigate(`/history/${history[index].verificationId}`),
     historyCards: history.map(({ name, image, price, score, verdict }) => ({ name, image, price, score, verdict })),
-    historyError,
-    refreshHistory,
-    hasMoreHistory,
-    loadingMoreHistory,
-    loadMoreHistory,
   }
 }
